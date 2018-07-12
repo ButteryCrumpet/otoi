@@ -4,7 +4,7 @@ namespace Otoi;
 
 use Otoi\Factories\SuperSimpleValidationFactory;
 
-class Validation
+class Validation implements ValidationInterface
 {
     private $validators;
     private $errors = [];
@@ -28,7 +28,7 @@ class Validation
             }
         }
 
-        return $this->isValid();
+        return $this->allValid();
     }
 
     public function getErrors()
@@ -46,7 +46,7 @@ class Validation
         return isset($this->errors[$name]) ? $this->errors[$name] : [];
     }
 
-    public function isValid()
+    public function allValid()
     {
         return count($this->errors) === 0;
     }

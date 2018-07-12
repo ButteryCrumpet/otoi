@@ -21,7 +21,9 @@ class DefaultContainer extends Container
     public function __construct()
     {
         $this->register("config", function ($c) {
-            return new Config("src/config-test.php");
+            $baseConfig = $_SERVER['DOCUMENT_ROOT'] . "/contact/config/config.php";
+            $messageConfig = $_SERVER['DOCUMENT_ROOT'] . "/contact/config/error-messages.php";
+            return new Config([$baseConfig, $messageConfig]);
         });
 
         $this->initViews();
@@ -61,8 +63,19 @@ class DefaultContainer extends Container
 
         $this->register("template-helpers", function ($c) {
             return [
-                "validation" => $c->get("validation")
+                "formHelper" => $c->get("form-helper")
             ];
+        });
+
+        $this->register("form-helper", function ($c) {
+            $configAll = $c->get("config");
+            $config = isset($configAll["error-config"])
+                ? $configAll["error-config"]
+                : [];
+            return new FormHelper(
+                $c->get("validation"),
+                $config
+            );
         });
     }
 
@@ -102,7 +115,7 @@ class DefaultContainer extends Container
         $this->register("mailer", function ($c) {
             return new Mailer(
                 $c->get("config")["mail"],
-                $c->get('views')
+                $c->get('template-engine')
             );
         });
     }

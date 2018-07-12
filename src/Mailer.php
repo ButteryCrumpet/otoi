@@ -78,8 +78,8 @@ class Mailer
                 }
 
                 $mail->Subject = $conf['subject'];
-
-                $mail->Body = $this->templateEngine->render($conf['template'], array("fields" => $fields));
+                $template = $this->templateEngine->build($conf['template'], array("fields" => $fields));
+                $mail->Body = $template->render();
                 if (isset($conf["attachments"])) {
                     foreach ($conf['attachments'] as $attachment) {
                         if (array_key_exists($attachment, $files)) {
