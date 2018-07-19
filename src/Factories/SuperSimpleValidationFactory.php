@@ -58,7 +58,7 @@ class SuperSimpleValidationFactory
         }
         $args = isset($exploded[1]) ? $this->parseArgs($exploded[1]) : null;
         $rule = $this->ruleMap[$ruleName];
-        $message = $rule;
+        $message = $ruleName;
         if ($args) {
             return new $rule($args, $message);
         }

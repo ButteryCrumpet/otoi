@@ -17,11 +17,12 @@ class MailMiddleware
 
     public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
     {
-        if ($request->getAttribute("action", "none") === "mail") {
-            if (!$this->mailer->send($request->getParsedBody(), $request->getUploadedFiles())) {
-                return new Response(503);
-            }
+
+        if (!$this->mailer->send($request->getParsedBody(), $request->getUploadedFiles())) {
+            return new Response(503);
         }
-        return $handler->handle($request);
+
+        $response = $handler->handle($request);
+        return $response->withStatus(202);
     }
 }

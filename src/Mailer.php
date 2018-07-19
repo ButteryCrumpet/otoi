@@ -43,9 +43,17 @@ class Mailer
                     if (!is_array($conf['from'])) {
                         $conf['from'] = [$conf['from']];
                     }
+                    $email = $conf['from'][0];
+                    $name = isset($conf['from'][1]) ? $conf['from'][1] : null;
+                    if (isset($fields[$email])) {
+                        $email = $fields[$email];
+                    }
+                    if (isset($fields[$name])) {
+                        $name = $fields[$name];
+                    }
                     $mail->setFrom(
-                        $conf['from'][0],
-                        isset($conf['from'][1]) ? $conf['from'][1] : null
+                        $email,
+                        $name
                     );
                 }
 
@@ -78,8 +86,8 @@ class Mailer
                 }
 
                 $mail->Subject = $conf['subject'];
-
-                $mail->Body = $this->templateEngine->render($conf['template'], array("fields" => $fields));
+                $template = $this->templateEngine->build($conf['template'], array("fields" => $fields));
+                $mail->Body = $template->render();
                 if (isset($conf["attachments"])) {
                     foreach ($conf['attachments'] as $attachment) {
                         if (array_key_exists($attachment, $files)) {

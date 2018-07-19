@@ -7,6 +7,13 @@ use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
 
 class SessionMiddleware
 {
+    private $destroy;
+
+    public function __construct($destroy = false)
+    {
+        $this->destroy = $destroy;
+    }
+
     public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
     {
         if (session_status() == PHP_SESSION_NONE) {
@@ -18,6 +25,18 @@ class SessionMiddleware
             $data = array_merge($_SESSION["otoi_data"], $data);
         }
         $_SESSION["otoi_data"] = $data;
-        return $handler->handle($request->withParsedBody($data));
+        $response = $handler->handle($request->withParsedBody($data));
+
+        if ($this->destroy === "success" && $response->getStatusCode() < 400) {
+            session_destroy();
+        }
+        if ($this->destroy === "fail" && $response->getStatusCode() >= 400) {
+            session_destroy();
+        }
+        if ($this->destroy === true) {
+            session_destroy();
+        }
+
+        return $response;
     }
 }

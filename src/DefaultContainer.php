@@ -11,6 +11,7 @@ use Otoi\Middleware\ResponseMiddleware;
 use Otoi\Middleware\SessionMiddleware;
 use Otoi\Middleware\ValidationMiddleware;
 use Otoi\Middleware\ViewMiddleware;
+use Otoi\Middleware\RoutingMiddleware;
 use SuperSimpleCache\SuperSimpleCache;
 use SuperSimpleTemplates\TemplateFactory;
 use SuperSimpleValidation\Rules;
@@ -21,9 +22,10 @@ class DefaultContainer extends Container
     public function __construct()
     {
         $this->register("config", function ($c) {
-            return new Config("src/config-test.php");
+            return new Config();
         });
 
+        $this->initRoutes();
         $this->initViews();
         $this->initMail();
         $this->initSessions();
@@ -32,8 +34,43 @@ class DefaultContainer extends Container
     }
 
     /*
+     * Routing
+     * */
+    private function initRoutes()
+    {
+        $this->register("routing-middleware", function ($c) {
+            $router = new RoutingMiddleware();
+            $router->addRoute("input", "GET", "/contact/", $c->get("middleware"));
+            $router->addRoute("confirm", "POST", "/contact/confirm", $c->get("middleware"));
+            $router->addRoute("mail", "POST", "/contact/mail", $c->get("mail-action-middleware"));
+            return $router;
+        });
+
+        $this->register("middleware", function ($c) {
+            return [
+                $c->get("file-session-middleware"),
+                $c->get("session-middleware"),
+                $c->get("view-middleware"),
+                $c->get("validation-middleware"),
+                $c->get("default-response-middleware")
+            ];
+        });
+
+        $this->register("mail-action-middleware", function ($c) {
+            return [
+                $c->get("file-session-middleware"),
+                $c->get("destroy-session-middleware"),
+                $c->get("view-middleware"),
+                $c->get("validation-middleware"),
+                $c->get("mail-middleware"),
+                $c->get("default-response-middleware")
+            ];
+        });
+    }
+
+    /*
      * View Dependencies
-     **/
+     * */
     private function initViews()
     {
         $this->register("view-middleware", function ($c) {
@@ -43,10 +80,10 @@ class DefaultContainer extends Container
         });
 
         $this->register("views", function ($c) {
-           return new View(
-               $c->get("config")["view-actions"],
-               $c->get("template-engine")
-           );
+            return new View(
+                $c->get("config")["view-actions"],
+                $c->get("template-engine")
+            );
         });
 
         $this->register("template-engine", function ($c) {
@@ -61,35 +98,24 @@ class DefaultContainer extends Container
 
         $this->register("template-helpers", function ($c) {
             return [
-                "validation" => $c->get("validation")
+                "formHelper" => $c->get("form-helper")
             ];
+        });
+
+        $this->register("form-helper", function ($c) {
+            $configAll = $c->get("config");
+            $config = isset($configAll["error-config"])
+                ? $configAll["error-config"]
+                : [];
+            return new FormHelper(
+                $c->get("validation"),
+                $config
+            );
         });
     }
 
     /*
      * Session Dependencies
-     * */
-    private function initSessions()
-    {
-        $this->register("session-middleware", function ($c) {
-            return new SessionMiddleware();
-        });
-
-        $this->register("file-session-middleware", function ($c) {
-            return new FileSessionMiddleware(
-                $c->get("cache")
-            );
-        });
-
-        $this->register("cache", function ($c) {
-            return new SuperSimpleCache(
-                $c->get("config")["cache-dir"]
-            );
-        });
-    }
-
-    /*
-     * Mail Dependencies
      * */
     private function initMail()
     {
@@ -102,7 +128,33 @@ class DefaultContainer extends Container
         $this->register("mailer", function ($c) {
             return new Mailer(
                 $c->get("config")["mail"],
-                $c->get('views')
+                $c->get('template-engine')
+            );
+        });
+    }
+
+    /*
+     * Mail Dependencies
+     * */
+    private function initSessions()
+    {
+        $this->register("session-middleware", function ($c) {
+            return new SessionMiddleware();
+        });
+
+        $this->register("destroy-session-middleware", function ($c) {
+            return new SessionMiddleware("success");
+        });
+
+        $this->register("file-session-middleware", function ($c) {
+            return new FileSessionMiddleware(
+                $c->get("cache")
+            );
+        });
+
+        $this->register("cache", function ($c) {
+            return new SuperSimpleCache(
+                $c->get("config")["cache-dir"]
             );
         });
     }

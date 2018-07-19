@@ -22,7 +22,7 @@ class ErrorHandlerMiddleware
         }
 
         if ($code === 403) {
-            return $response->withHeader("Location", "/");
+            return $response->withHeader("Location", "/contact");
         }
 
 //        if ($action === "mail" && $code === 200) {
@@ -30,7 +30,7 @@ class ErrorHandlerMiddleware
 //        }
 
         if ($action === "mail" && $code === 503) {
-            return $response->withHeader("Location", "/");
+            return $response->withHeader("Location", "/contact");
         }
 
         return $response;
