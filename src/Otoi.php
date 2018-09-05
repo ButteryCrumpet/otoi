@@ -4,7 +4,7 @@ namespace Otoi;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Psr\Container\ContainerInterface;
-use SuperSimpleRequestHandler\LegacyHandler as Handler;
+use SuperSimpleRequestHandler\Handler;
 
 class Otoi
 {
@@ -47,6 +47,7 @@ class Otoi
         }
         if ($statusCode === 202 && $this->request->getMethod() === "POST") {
             header("Location: " . $this->config["thanksUri"]);
+            die();
         }
         if ($response->hasHeader('Location')) {
             $header = 'Location: ' . $response->getHeaderLine('Location');

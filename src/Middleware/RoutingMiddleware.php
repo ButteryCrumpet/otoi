@@ -4,16 +4,19 @@ namespace Otoi\Middleware;
 
 use \Psr\Http\Message\ServerRequestInterface;
 use \GuzzleHttp\Psr7\Response;
-use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
-use SuperSimpleRequestHandler\LegacyHandler;
+use Psr\Http\Server\RequestHandlerInterface;
+use SuperSimpleRequestHandler\Handler as Handler;
 
 class RoutingMiddleware
 {
     private $dispatcher;
     private $routes = [];
+    /**
+    * @var ServerRequestInterface
+     */
     private $request;
 
-    public function addRoute($name, $method, $url, $middleware)
+    public function addRoute($name, $method, $url, array $middleware)
     {
         $this->routes[$name] = [
             "method" => $method,
@@ -22,7 +25,7 @@ class RoutingMiddleware
         ];
     }
 
-    public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
         $this->request = $request;
         $this->setUpDispatcher();
@@ -34,7 +37,7 @@ class RoutingMiddleware
         $this->dispatcher = \FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) {
             foreach ($this->routes as $name => $route) {
                 $r->addRoute($route["method"], $route["url"], function () use ($name, $route) {
-                    $handler = new LegacyHandler($route["middleware"]);
+                    $handler = new Handler($route["middleware"]);
                     return $handler->handle($this->request->withAttribute("action", $name));
                 });
             }
@@ -55,8 +58,7 @@ class RoutingMiddleware
                 return new Response(405);
                 break;
             case \FastRoute\Dispatcher::FOUND:
-                $handler = $routeInfo[1];
-                return $handler();
+                return $routeInfo[1]();
                 break;
         }
     }

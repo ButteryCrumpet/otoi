@@ -16,7 +16,7 @@ class PdfRule implements RuleInterface
         $this->validator = new Validator([
             "extension" => new FileExtension("pdf", "Extension must be .pdf"),
             "signature" => new FileSignature(["25", "50", "44", "46"], "File does not match PDF file signature")
-        ], "Must be a PDF");
+        ]);
     }
 
     function assert($data)

@@ -4,7 +4,7 @@ namespace Otoi\Middleware;
 
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
-use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use SuperSimpleValidation\RuleInterface;
 
 class ValidationMiddleware
@@ -16,11 +16,11 @@ class ValidationMiddleware
         $this->validator = $validator;
     }
 
-    public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
         $valid = $this->validator->validate(array_merge(
-            $request->getParsedBody(),
-            $request->getUploadedFiles()
+            (array)$request->getParsedBody() ?? [],
+            $request->getUploadedFiles() ?? []
         ));
         if (!$valid) {
             return new Response(403);

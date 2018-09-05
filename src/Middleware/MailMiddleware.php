@@ -4,7 +4,7 @@ namespace Otoi\Middleware;
 
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
-use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class MailMiddleware
 {
@@ -15,7 +15,7 @@ class MailMiddleware
         $this->mailer = $mailer;
     }
 
-    public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
 
         if (!$this->mailer->send($request->getParsedBody(), $request->getUploadedFiles())) {

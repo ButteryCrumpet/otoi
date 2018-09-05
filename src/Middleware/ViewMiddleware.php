@@ -5,7 +5,7 @@ namespace Otoi\Middleware;
 use Otoi\View;
 use GuzzleHttp\Psr7;
 use Psr\Http\Message\ServerRequestInterface;
-use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class ViewMiddleware
 {
@@ -16,7 +16,7 @@ class ViewMiddleware
         $this->view = $view;
     }
 
-    public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
         $data = $request->getParsedBody();
         $files = $request->getUploadedFiles();

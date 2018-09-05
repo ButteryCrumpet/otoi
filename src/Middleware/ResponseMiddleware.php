@@ -4,7 +4,7 @@ namespace Otoi\Middleware;
 
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
-use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class ResponseMiddleware
 {
@@ -19,7 +19,7 @@ class ResponseMiddleware
         $this->body = $body;
     }
 
-    public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
         return new Response($this->code, $this->headers, $this->body);
     }

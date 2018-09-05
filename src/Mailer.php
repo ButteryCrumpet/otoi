@@ -33,10 +33,7 @@ class Mailer
                     $conf['to'] = [$conf['to']];
                 }
                 foreach ($conf["to"] as $to) {
-                    if (isset($fields[$to])) {
-                        $to = $fields[$to];
-                    }
-                    $mail->addAddress($to);
+                    $mail->addAddress($fields[$to] ?? $to);
                 }
 
                 if (isset($conf['from'])) {
@@ -44,16 +41,11 @@ class Mailer
                         $conf['from'] = [$conf['from']];
                     }
                     $email = $conf['from'][0];
-                    $name = isset($conf['from'][1]) ? $conf['from'][1] : null;
-                    if (isset($fields[$email])) {
-                        $email = $fields[$email];
-                    }
-                    if (isset($fields[$name])) {
-                        $name = $fields[$name];
-                    }
+                    $name = $conf['from'][1] ?? null;
+
                     $mail->setFrom(
-                        $email,
-                        $name
+                        $fields[$email] ?? $email,
+                        $fields[$name] ?? $name
                     );
                 }
 
@@ -62,9 +54,7 @@ class Mailer
                         $conf['bcc'] = [$conf['bcc']];
                     }
                     foreach ($conf['bcc'] as $bcc) {
-                        if (isset($fields[$bcc])) {
-                            $bcc = $fields[$bcc];
-                        }
+                        $bcc = $fields[$bcc] ?? $bcc;
                         if (filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
                             $mail->addBCC($bcc);
                         }
@@ -76,9 +66,7 @@ class Mailer
                         $conf['cc'] = [$conf['cc']];
                     }
                     foreach ($conf['cc'] as $cc) {
-                        if (isset($fields[$cc])) {
-                            $cc = $fields[$cc];
-                        }
+                        $cc = $fields[$cc] ?? $cc;
                         if (filter_var($cc, FILTER_VALIDATE_EMAIL)) {
                             $mail->addCC($cc);
                         }
@@ -94,7 +82,10 @@ class Mailer
                             $file = $files[$attachment];
                             $stream = $file->getStream();
                             $stream->rewind();
-                            $mail->addStringAttachment($stream->getContents(), $file->getClientFilename());
+                            $mail->addStringAttachment(
+                                $stream->getContents() ?? "",
+                                $file->getClientFilename() ?? "attachment"
+                            );
                         }
                     }
                 }

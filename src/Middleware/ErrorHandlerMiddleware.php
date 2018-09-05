@@ -3,15 +3,11 @@
 namespace Otoi\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
-use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class ErrorHandlerMiddleware
 {
-    public function __construct($conf)
-    {
-    }
-
-    public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
         $action = $request->getAttribute("action", "none");
         $response = $handler->handle($request);

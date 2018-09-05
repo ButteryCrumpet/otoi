@@ -7,7 +7,7 @@ use GuzzleHttp\Psr7\UploadedFile;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\SimpleCache\CacheInterface;
-use SuperSimpleRequestHandler\LegacyRequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class FileSessionMiddleware
 {
@@ -19,7 +19,7 @@ class FileSessionMiddleware
         $this->cache = $cache;
     }
 
-    public function process(ServerRequestInterface $request, LegacyRequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
         if ($request->getMethod() !== "POST") {
             return $handler->handle($request);

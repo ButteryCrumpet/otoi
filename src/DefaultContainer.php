@@ -115,7 +115,7 @@ class DefaultContainer extends Container
     }
 
     /*
-     * Session Dependencies
+     * Mail Dependencies
      * */
     private function initMail()
     {
@@ -134,7 +134,7 @@ class DefaultContainer extends Container
     }
 
     /*
-     * Mail Dependencies
+     * Session Dependencies
      * */
     private function initSessions()
     {
@@ -211,9 +211,7 @@ class DefaultContainer extends Container
         });
 
         $this->register("error-handler-middleware", function ($c) {
-            return new ErrorHandlerMiddleware(
-                $c->get("config")["error-conf"]
-            );
+            return new ErrorHandlerMiddleware();
         });
     }
 
