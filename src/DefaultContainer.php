@@ -4,7 +4,6 @@ namespace Otoi;
 
 use Otoi\CustomRules;
 use Otoi\Factories\SuperSimpleValidationFactory;
-use Otoi\Middleware\ErrorHandlerMiddleware;
 use Otoi\Middleware\FileSessionMiddleware;
 use Otoi\Middleware\MailMiddleware;
 use Otoi\Middleware\ResponseMiddleware;
@@ -31,41 +30,6 @@ class DefaultContainer extends Container
         $this->initSessions();
         $this->initValidation();
         $this->initResponseHandling();
-    }
-
-    /*
-     * Routing
-     * */
-    private function initRoutes()
-    {
-        $this->register("routing-middleware", function ($c) {
-            $router = new RoutingMiddleware();
-            $router->addRoute("input", "GET", "/contact/", $c->get("middleware"));
-            $router->addRoute("confirm", "POST", "/contact/confirm", $c->get("middleware"));
-            $router->addRoute("mail", "POST", "/contact/mail", $c->get("mail-action-middleware"));
-            return $router;
-        });
-
-        $this->register("middleware", function ($c) {
-            return [
-                $c->get("file-session-middleware"),
-                $c->get("session-middleware"),
-                $c->get("view-middleware"),
-                $c->get("validation-middleware"),
-                $c->get("default-response-middleware")
-            ];
-        });
-
-        $this->register("mail-action-middleware", function ($c) {
-            return [
-                $c->get("file-session-middleware"),
-                $c->get("destroy-session-middleware"),
-                $c->get("view-middleware"),
-                $c->get("validation-middleware"),
-                $c->get("mail-middleware"),
-                $c->get("default-response-middleware")
-            ];
-        });
     }
 
     /*
@@ -200,19 +164,4 @@ class DefaultContainer extends Container
             );
         });
     }
-
-    /*
-     * Response handling Dependencies
-     * */
-    private function initResponseHandling()
-    {
-        $this->register("default-response-middleware", function ($c) {
-            return new ResponseMiddleware();
-        });
-
-        $this->register("error-handler-middleware", function ($c) {
-            return new ErrorHandlerMiddleware();
-        });
-    }
-
 }

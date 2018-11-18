@@ -10,8 +10,7 @@ class FormHelper
     private $wrapperBefore = "";
     private $wrapperAfter = "";
     private $tag;
-    private $values
-    ;
+    private $values;
 
     private static $defaults = [
         "error-messages" => [],

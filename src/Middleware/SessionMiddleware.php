@@ -2,10 +2,12 @@
 
 namespace Otoi\Middleware;
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class SessionMiddleware
+class SessionMiddleware implements MiddlewareInterface
 {
     private $destroy;
 
@@ -14,8 +16,12 @@ class SessionMiddleware
         $this->destroy = $destroy;
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        if (\headers_sent()) {
+            return $handler->handle($request);
+        }
+
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }

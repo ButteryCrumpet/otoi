@@ -6,10 +6,10 @@ use Otoi\Factories\SuperSimpleValidationFactory;
 
 class Validation implements ValidationInterface
 {
-    private $validators;
+    private $validators = [];
     private $errors = [];
 
-    public function __construct($conf, $factory)
+    public function __construct($conf, SuperSimpleValidationFactory $factory)
     {
         foreach ($conf as $name => $rules) {
             $this->validators[$name] = $factory->build($rules);
@@ -22,7 +22,6 @@ class Validation implements ValidationInterface
             $value = array_key_exists($name, $data)
                 ? $data[$name]
                 : null;
-
             if (!$this->validators[$name]->validate($value)) {
                 $this->errors[$name] = $this->validators[$name]->getErrorMessages();
             }

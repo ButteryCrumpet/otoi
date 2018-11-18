@@ -19,15 +19,10 @@
         "phpstan/phpstan": "^0.10.3"
     },
     "require": {
-        "butterycrumpet/supersimple-validation": "^0.0.5",
-        "butterycrumpet/supersimple-forms": "^0.0.1",
-        "butterycrumpet/supersimple-templates": "^0.0.1",
-        "guzzlehttp/psr7": "^1.4",
-        "psr/container": "^1.0",
-        "butterycrumpet/supersimpledi": "^0.9.0",
-        "butterycrumpet/supersimple-requesthandler": "^0.0.2",
-        "butterycrumpet/supersimplecache": "^0.1.0",
+        "butterycrumpet/supersimple-validation": "*",
+        "butterycrumpet/supersimplecache": "*",
         "phpmailer/phpmailer": "^6.0",
-        "nikic/fast-route": "^1.3"
+        "butterycrumpet/supersimple-framework": "*",
+        "twig/twig": "^2.5"
     }
 }
