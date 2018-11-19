@@ -15,7 +15,7 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
         try {
             $response = $handler->handle($request);
         } catch (\Exception $e) {
-            return new Response(500, [], var_export($e));
+            return new Response(500, [], var_export($e->getMessage()));
         }
         return $response;
     }

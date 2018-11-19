@@ -2,38 +2,34 @@
 
 namespace Otoi;
 
+use Otoi\Interfaces\TemplateInterface;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class Mailer
 {
-    private $configs;
     private $templateEngine;
 
-    public function __construct($configs, $view)
+    public function __construct(TemplateInterface $view)
     {
-        $this->configs = $configs;
         $this->templateEngine = $view;
     }
 
-    /**
-     * @param string[] $fields
-     * @param \Psr\Http\Message\UploadedFileInterface[] $files
-     * @return boolean
-     */
     public function send($fields, $files)
     {
-        $mail = new PHPMailer(true);
-        $mail->setLanguage('jp');
-        $mail->CharSet = 'UTF-8';
+        $configs = $this->getConfigs($fields);
 
-        foreach ($this->configs as $conf) {
-            try {
+        foreach ($configs as $conf) {
+                $mail = new PHPMailer(true);
+                $mail->setLanguage('jp');
+                $mail->CharSet = 'UTF-8';
+                $mail->Encoding = 'base64';
 
                 if (!is_array($conf['to'])) {
                     $conf['to'] = [$conf['to']];
                 }
                 foreach ($conf["to"] as $to) {
-                    $mail->addAddress($fields[$to] ?? $to);
+                    $toMail = isset($fields[$to]) ? $fields[$to] : $to;
+                    $mail->addAddress($toMail);
                 }
 
                 if (isset($conf['from'])) {
@@ -41,12 +37,10 @@ class Mailer
                         $conf['from'] = [$conf['from']];
                     }
                     $email = $conf['from'][0];
-                    $name = $conf['from'][1] ?? null;
-
-                    $mail->setFrom(
-                        $fields[$email] ?? $email,
-                        $fields[$name] ?? $name
-                    );
+                    $email = isset($fields[$email]) ? $fields[$email] : $email;
+                    $name = isset($conf['from'][1]) ? $conf['from'][1] : null;
+                    $name = isset($fields[$name]) ? $fields[$name] : $name;
+                    $mail->setFrom($email, $name);
                 }
 
                 if (isset($conf["bcc"])) {
@@ -54,7 +48,7 @@ class Mailer
                         $conf['bcc'] = [$conf['bcc']];
                     }
                     foreach ($conf['bcc'] as $bcc) {
-                        $bcc = $fields[$bcc] ?? $bcc;
+                        $bcc = isset($fields[$bcc]) ? $fields[$bcc] : $bcc;
                         if (filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
                             $mail->addBCC($bcc);
                         }
@@ -66,7 +60,7 @@ class Mailer
                         $conf['cc'] = [$conf['cc']];
                     }
                     foreach ($conf['cc'] as $cc) {
-                        $cc = $fields[$cc] ?? $cc;
+                        $cc = isset($fields[$cc]) ? $fields[$cc] : $cc;
                         if (filter_var($cc, FILTER_VALIDATE_EMAIL)) {
                             $mail->addCC($cc);
                         }
@@ -74,27 +68,25 @@ class Mailer
                 }
 
                 $mail->Subject = $conf['subject'];
-                $template = $this->templateEngine->build($conf['template'], array("fields" => $fields));
-                $mail->Body = $template->render();
+                $mail->Body = $this->templateEngine->render(
+                    $conf['template'],
+                    $fields
+                );
                 if (isset($conf["attachments"])) {
                     foreach ($conf['attachments'] as $attachment) {
                         if (array_key_exists($attachment, $files)) {
                             $file = $files[$attachment];
                             $stream = $file->getStream();
                             $stream->rewind();
+                            $filename = $file->getClientFilename();
                             $mail->addStringAttachment(
-                                $stream->getContents() ?? "",
-                                $file->getClientFilename() ?? "attachment"
+                                $stream->getContents(),
+                                $filename ? $filename : "attachment"
                             );
                         }
                     }
                 }
                 $mail->send();
-            } catch (\PHPMailer\PHPMailer\Exception $e) {
-                error_log($e->errorMessage());
-                return false;
-            }
         }
-        return true;
     }
 }

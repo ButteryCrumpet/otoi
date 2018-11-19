@@ -3,50 +3,27 @@
 namespace Otoi;
 
 use Otoi\Factories\SuperSimpleValidationFactory;
+use Otoi\Interfaces\ValidatableInterface;
+use Otoi\Interfaces\ValidationInterface;
 
 class Validation implements ValidationInterface
 {
-    private $validators = [];
-    private $errors = [];
+    private $factory;
 
-    public function __construct($conf, SuperSimpleValidationFactory $factory)
+    public function __construct(SuperSimpleValidationFactory $factory)
     {
-        foreach ($conf as $name => $rules) {
-            $this->validators[$name] = $factory->build($rules);
-        }
+        $this->factory = $factory;
     }
 
-    public function validate($data)
+    public function validate(ValidatableInterface $validatable)
     {
-        foreach ($this->validators as $name => $validator) {
-            $value = array_key_exists($name, $data)
-                ? $data[$name]
-                : null;
-            if (!$this->validators[$name]->validate($value)) {
-                $this->errors[$name] = $this->validators[$name]->getErrorMessages();
+        $validator = $this->factory->build($validatable->getValidation());
+        if ($validator->validate($validatable->getValue())) {
+            $validatable->setValid();
+        } else {
+            if ($validatable instanceof ErrorAwareInterface) {
+                $validatable->setErrors($validator->getErrorMessages());
             }
         }
-
-        return $this->allValid();
-    }
-
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    public function hasError($name)
-    {
-        return isset($this->errors[$name]);
-    }
-
-    public function errorsOf($name)
-    {
-        return isset($this->errors[$name]) ? $this->errors[$name] : [];
-    }
-
-    public function allValid()
-    {
-        return count($this->errors) === 0;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Otoi;
+namespace Otoi\Interfaces;
 
 interface TemplateInterface
 {

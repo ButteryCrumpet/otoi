@@ -4,6 +4,7 @@ namespace Otoi\Factories;
 
 use SuperSimpleValidation\Logic\LogicNot;
 use SuperSimpleValidation\Logic\LogicOr;
+use SuperSimpleValidation\RuleInterface;
 use SuperSimpleValidation\Rules\Required;
 use SuperSimpleValidation\Validator;
 
@@ -16,7 +17,7 @@ class SuperSimpleValidationFactory
         $this->ruleMap = $ruleMap;
     }
 
-    public function build($config)
+    public function build($config): RuleInterface
     {
         if (!is_string($config)) {
             throw new \InvalidArgumentException(sprintf(

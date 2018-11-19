@@ -48,16 +48,16 @@
         },
         {
             "name": "butterycrumpet/supersimple-framework",
-            "version": "v0.0.1",
+            "version": "v0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ButteryCrumpet/supersimple-framework.git",
-                "reference": "a3e7b499f6b67d4cc17bb5cf85158358f83be620"
+                "reference": "c3bcbe63e58a2889b5429fbc6b9edd81fe8b5c2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ButteryCrumpet/supersimple-framework/zipball/a3e7b499f6b67d4cc17bb5cf85158358f83be620",
-                "reference": "a3e7b499f6b67d4cc17bb5cf85158358f83be620",
+                "url": "https://api.github.com/repos/ButteryCrumpet/supersimple-framework/zipball/c3bcbe63e58a2889b5429fbc6b9edd81fe8b5c2c",
+                "reference": "c3bcbe63e58a2889b5429fbc6b9edd81fe8b5c2c",
                 "shasum": ""
             },
             "require": {
@@ -91,7 +91,7 @@
                 }
             ],
             "description": "A super simple web app framework",
-            "time": "2018-11-18T05:36:04+00:00"
+            "time": "2018-11-19T01:42:19+00:00"
         },
         {
             "name": "butterycrumpet/supersimple-kernel",
