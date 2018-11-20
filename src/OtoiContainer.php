@@ -2,12 +2,17 @@
 
 namespace Otoi;
 
+use Otoi\Interfaces\FormLoaderInterface;
+use Otoi\Interfaces\MailConfigLoaderInterface;
+use Otoi\Loaders\FormLoader;
+use Otoi\Loaders\MailConfigLoader;
+use Otoi\Parsers\ArrayMailConfigParser;
+use Otoi\Parsers\StringValidationParser;
+use Otoi\Strategies\PHPFileStrategy;
+use Otoi\Parsers\ArrayFieldParser;
 use SuperSimpleFramework\AppContainer;
-use Otoi\Factories\SuperSimpleValidationFactory;
-use Otoi\Interfaces\LoaderInterface;
 use Otoi\Interfaces\TemplateInterface;
 use Otoi\Interfaces\ValidationInterface;
-use Otoi\Loaders\PHPFileLoader;
 use Otoi\Middleware\SessionMiddleware;
 use SuperSimpleValidation\Rules;
 
@@ -32,14 +37,14 @@ class OtoiContainer extends AppContainer
                 'email' => Rules\Email::class,
                 'file-ext' => Rules\FileExtension::class,
                 'file-sig' => Rules\FileSignature::class,
-                'jchars' => CustomRules\JChars::class,
+                'jchars' => CustomRules\JapaneseCharacters::class,
                 'pdf' => CustomRules\PdfRule::class,
                 'phone' => CustomRules\PhoneNumberRule::class
             ];
         });
 
         $this->register("validation-factory", function ($c) {
-            return new SuperSimpleValidationFactory(
+            return new StringValidationParser(
                 $c->get('rule-map')
             );
         });
@@ -54,8 +59,34 @@ class OtoiContainer extends AppContainer
             return new Templates();
         });
 
-        $this->register(LoaderInterface::class, function ($c) {
-            return new PHPFileLoader($c->get("config_dir"));
+        $this->register("form-file-loader", function ($c) {
+            return new PHPFileStrategy($c->get("config_dir") . "/forms");
+        });
+
+        $this->register("mail-file-loader", function ($c) {
+            return new PHPFileStrategy($c->get("config_dir") . "/mail");
+        });
+
+        $this->register(FormLoaderInterface::class, function ($c) {
+           return new FormLoader(
+               $c->get("form-file-loader"),
+               $c->get("field-parser")
+           );
+        });
+
+        $this->register("field-parser", function () {
+            return new ArrayFieldParser();
+        });
+
+        $this->register(MailConfigLoaderInterface::class, function ($c) {
+            return new MailConfigLoader(
+                $c->get("mail-file-loader"),
+                $c->get("mail-config-parser")
+            );
+        });
+
+        $this->register("mail-config-parser", function () {
+            return new ArrayMailConfigParser();
         });
     }
 }

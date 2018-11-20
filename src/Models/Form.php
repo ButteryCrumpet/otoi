@@ -58,10 +58,6 @@ class Form implements \ArrayAccess, \Iterator
 
     public function offsetSet($offset, $value)
     {
-        if (is_null($offset)) {
-            throw new \InvalidArgumentException("Offset must not be null");
-        }
-
         if (!($value instanceof Field)) {
             throw new \InvalidArgumentException(
                 "Value must be an instance of " . Field::class

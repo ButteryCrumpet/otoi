@@ -2,22 +2,23 @@
 
 namespace Otoi;
 
-use Otoi\Factories\SuperSimpleValidationFactory;
+use Otoi\Interfaces\ErrorAwareInterface;
 use Otoi\Interfaces\ValidatableInterface;
 use Otoi\Interfaces\ValidationInterface;
+use Otoi\Parsers\StringValidationParser;
 
 class Validation implements ValidationInterface
 {
     private $factory;
 
-    public function __construct(SuperSimpleValidationFactory $factory)
+    public function __construct(StringValidationParser $factory)
     {
         $this->factory = $factory;
     }
 
     public function validate(ValidatableInterface $validatable)
     {
-        $validator = $this->factory->build($validatable->getValidation());
+        $validator = $this->factory->parse($validatable->getValidation());
         if ($validator->validate($validatable->getValue())) {
             $validatable->setValid();
         } else {

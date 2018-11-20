@@ -15,7 +15,14 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
         try {
             $response = $handler->handle($request);
         } catch (\Exception $e) {
-            return new Response(500, [], var_export($e->getMessage()));
+            $body = sprintf(
+                "\nError %s with message \"%s\" \nFile: %s:%s",
+                $e->getCode(),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            );
+            return new Response(500, [], $body);
         }
         return $response;
     }

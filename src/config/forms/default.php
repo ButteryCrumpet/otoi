@@ -1,11 +1,12 @@
 <?php
 
 return [
-    "name" => [
+    [
+        "name" => "name",
         "type" => "text",
         "validation" => "required"
-    ],
-    "email" => [
+    ], [
+        "name" => "email",
         "type" => "text",
         "validation" => "required|email"
     ]

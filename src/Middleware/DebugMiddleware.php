@@ -12,8 +12,10 @@ class DebugMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         var_dump($request->getUri()->getPath());
+        $start = microtime(true);
         $response = $handler->handle($request);
-        var_dump($response->getStatusCode());
+        $ms = microtime(true) - $start;
+        echo sprintf("\n%s Response in %s seconds.\n", $response->getStatusCode(), $ms);
         return $response;
     }
 }

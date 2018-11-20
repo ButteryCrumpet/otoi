@@ -3,7 +3,8 @@
 namespace Otoi\Controllers;
 
 use GuzzleHttp\Psr7\Response;
-use Otoi\Interfaces\LoaderInterface;
+use Otoi\Interfaces\FormLoaderInterface;
+use Otoi\Interfaces\MailConfigLoaderInterface;
 use Otoi\Interfaces\TemplateInterface;
 use Otoi\Interfaces\ValidationInterface;
 use Otoi\Models\Form;
@@ -16,17 +17,20 @@ class FormController implements RequestAwareInterface
 
     private $validation;
     private $templates;
-    private $loader;
+    private $formLoader;
+    private $mailConfigLoader;
     private $form;
 
     public function __construct(
         TemplateInterface $templates,
         ValidationInterface $validator,
-        LoaderInterface $loader
+        FormLoaderInterface $formLoader,
+        MailConfigLoaderInterface $mailConfigLoader
     ) {
         $this->templates = $templates;
         $this->validation = $validator;
-        $this->loader = $loader;
+        $this->formLoader = $formLoader;
+        $this->mailConfigLoader = $mailConfigLoader;
     }
 
     public function index($formName = "default")
@@ -51,17 +55,6 @@ class FormController implements RequestAwareInterface
         return new Response(200, [], $body);
     }
 
-    public function mail($formName = "default")
-    {
-       $this->loadForm($formName);
-        if (!$this->form->isValid()) {
-            return new Response(403);
-        }
-
-        $response = new Response(200);
-        return $response->withHeader("Location", "/");
-    }
-
     public function thanks($formName = "default")
     {
         return new Response(200, [], "thanks");
@@ -69,7 +62,7 @@ class FormController implements RequestAwareInterface
 
     private function loadForm($name)
     {
-        $form = $this->loader->load($name);
+        $form = $this->formLoader->load($name);
         $this->validateForm($form);
         $this->form = $form;
     }
@@ -85,4 +78,6 @@ class FormController implements RequestAwareInterface
         }
         return $form->isValid();
     }
+
+
 }

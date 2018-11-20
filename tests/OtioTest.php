@@ -21,13 +21,13 @@ class OtoiTest extends TestCase
         ];
 
         $uri = $this->createMock(\Psr\Http\Message\UriInterface::class);
-        $uri->method("getPath")->willReturn("/contact/confirm");
+        $uri->method("getPath")->willReturn("/confirm");
         $request = $this->createMock(\Psr\Http\Message\ServerRequestInterface::class);
         $request->method("getUri")->willReturn($uri);
         $request->method("getMethod")->willReturn("POST");
         $request->method("getParsedBody")->willReturn($post_data);
 
-        $otoi = new Otoi("/contact");
+        $otoi = new Otoi("/");
         $otoi->run($request);
     }
 }

@@ -3,6 +3,7 @@
 namespace Otoi;
 
 use Otoi\Interfaces\TemplateInterface;
+use Otoi\Models\MailConfig;
 use PHPMailer\PHPMailer\PHPMailer;
 
 class Mailer
@@ -14,79 +15,49 @@ class Mailer
         $this->templateEngine = $view;
     }
 
-    public function send($fields, $files)
+    public function send(MailConfig $config, $fields, $files = array())
     {
-        $configs = $this->getConfigs($fields);
+        $mail = new PHPMailer(true);
+        $mail->setLanguage('jp');
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
 
-        foreach ($configs as $conf) {
-                $mail = new PHPMailer(true);
-                $mail->setLanguage('jp');
-                $mail->CharSet = 'UTF-8';
-                $mail->Encoding = 'base64';
+        $to = $config->getTo();
+        $mail->addAddress($to->getAddress(), $to->getName());
+        $from = $config->getFrom();
+        $mail->setFrom($from->getAddress(), $from->getName());
 
-                if (!is_array($conf['to'])) {
-                    $conf['to'] = [$conf['to']];
-                }
-                foreach ($conf["to"] as $to) {
-                    $toMail = isset($fields[$to]) ? $fields[$to] : $to;
-                    $mail->addAddress($toMail);
-                }
-
-                if (isset($conf['from'])) {
-                    if (!is_array($conf['from'])) {
-                        $conf['from'] = [$conf['from']];
-                    }
-                    $email = $conf['from'][0];
-                    $email = isset($fields[$email]) ? $fields[$email] : $email;
-                    $name = isset($conf['from'][1]) ? $conf['from'][1] : null;
-                    $name = isset($fields[$name]) ? $fields[$name] : $name;
-                    $mail->setFrom($email, $name);
-                }
-
-                if (isset($conf["bcc"])) {
-                    if (!is_array($conf['bcc'])) {
-                        $conf['bcc'] = [$conf['bcc']];
-                    }
-                    foreach ($conf['bcc'] as $bcc) {
-                        $bcc = isset($fields[$bcc]) ? $fields[$bcc] : $bcc;
-                        if (filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
-                            $mail->addBCC($bcc);
-                        }
-                    }
-                }
-
-                if (isset($conf["cc"])) {
-                    if (!is_array($conf['cc'])) {
-                        $conf['cc'] = [$conf['cc']];
-                    }
-                    foreach ($conf['cc'] as $cc) {
-                        $cc = isset($fields[$cc]) ? $fields[$cc] : $cc;
-                        if (filter_var($cc, FILTER_VALIDATE_EMAIL)) {
-                            $mail->addCC($cc);
-                        }
-                    }
-                }
-
-                $mail->Subject = $conf['subject'];
-                $mail->Body = $this->templateEngine->render(
-                    $conf['template'],
-                    $fields
-                );
-                if (isset($conf["attachments"])) {
-                    foreach ($conf['attachments'] as $attachment) {
-                        if (array_key_exists($attachment, $files)) {
-                            $file = $files[$attachment];
-                            $stream = $file->getStream();
-                            $stream->rewind();
-                            $filename = $file->getClientFilename();
-                            $mail->addStringAttachment(
-                                $stream->getContents(),
-                                $filename ? $filename : "attachment"
-                            );
-                        }
-                    }
-                }
-                $mail->send();
+        $cc = $config->getCc();
+        foreach ($cc as $email) {
+            $mail->addCC($email->getAddress(), $email->getName());
         }
+
+        $bcc = $config->getBcc();
+        foreach ($bcc as $email) {
+            $mail->addCC($email->getAddress(), $email->getName());
+        }
+
+        $mail->Subject = $config->getSubject();
+
+        $mail->Body = $this->templateEngine->render(
+            $config->getTemplate(),
+            ["form" => $fields]
+        );
+
+        //if (isset($conf["attachments"])) {
+        //    foreach ($conf['attachments'] as $attachment) {
+        //        if (array_key_exists($attachment, $files)) {
+        //            $file = $files[$attachment];
+        //            $stream = $file->getStream();
+        //            $stream->rewind();
+        //            $filename = $file->getClientFilename();
+        //            $mail->addStringAttachment(
+        //                $stream->getContents(),
+        //                $filename ? $filename : "attachment"
+        //            );
+        //        }
+        //    }
+        //}
+        $mail->send();
     }
 }

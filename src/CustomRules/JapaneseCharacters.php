@@ -5,7 +5,7 @@ namespace Otoi\CustomRules;
 use SuperSimpleValidation\RuleInterface;
 use SuperSimpleValidation\Rules\Regex;
 
-class JChars implements RuleInterface
+class JapaneseCharacters implements RuleInterface
 {
     private $regexRule;
 
@@ -13,7 +13,7 @@ class JChars implements RuleInterface
     {
         $this->regexRule = new Regex(
             '/^[\p{Katakana}\p{Hiragana}\p{Han}0-9]+$/u',
-            'Must be Katakana, Hirgana or Kanji'
+            'Must be Katakana, Hiragana or Kanji'
         );
     }
 

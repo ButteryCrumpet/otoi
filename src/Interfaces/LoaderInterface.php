@@ -2,11 +2,9 @@
 
 namespace Otoi\Interfaces;
 
-use Otoi\Models\Form;
-
 interface LoaderInterface
 {
-    public function load($name): Form;
+    public function load($name);
 
     public function all(): array;
 

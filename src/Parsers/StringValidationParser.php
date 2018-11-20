@@ -1,14 +1,15 @@
 <?php
 
-namespace Otoi\Factories;
+namespace Otoi\Parsers;
 
+use Otoi\Interfaces\ParserInterface;
 use SuperSimpleValidation\Logic\LogicNot;
 use SuperSimpleValidation\Logic\LogicOr;
 use SuperSimpleValidation\RuleInterface;
 use SuperSimpleValidation\Rules\Required;
 use SuperSimpleValidation\Validator;
 
-class SuperSimpleValidationFactory
+class StringValidationParser implements ParserInterface
 {
     private $ruleMap;
 
@@ -17,7 +18,7 @@ class SuperSimpleValidationFactory
         $this->ruleMap = $ruleMap;
     }
 
-    public function build($config): RuleInterface
+    public function parse($config): RuleInterface
     {
         if (!is_string($config)) {
             throw new \InvalidArgumentException(sprintf(

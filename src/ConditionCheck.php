@@ -2,35 +2,17 @@
 
 namespace Otoi;
 
+use Otoi\Models\MailConfig;
+
 class ConditionCheck
 {
-    public function getConfigs($fields)
+    public function check(MailConfig $config, array $fields)
     {
-        $default = array();
-        $always = array();
-        $conditional = array();
-
-        foreach ($this->configs as $config) {
-            if (!isset($config['cond'])) {
-                $default[] = $config;
-                continue;
-            }
-            $cond = $config['cond'];
-            if ($cond === "always") {
-                $always[] = $config;
-                continue;
-            }
-
-            if ($this->conditionMet($cond, $fields)) {
-                $conditional[] = $config;
-            }
+        $cond = $config->getCondition();
+        if ($cond === "always") {
+            return true;
         }
-
-        if (empty($conditional)) {
-            return array_merge($default, $always);
-        }
-
-        return array_merge($conditional, $always);
+        return $this->conditionMet($cond, $fields);
     }
 
     private function conditionMet($cond, $fields)
@@ -51,7 +33,7 @@ class ConditionCheck
             if (!isset($fields[$exploded[0]])) {
                 return false;
             }
-            $value = $fields[$exploded[0]];
+            $value = $fields[$exploded[0]]->getValue();
             $result =  $value === $exploded[1];
             return $result;
         }
