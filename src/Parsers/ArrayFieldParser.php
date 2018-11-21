@@ -20,14 +20,16 @@ class ArrayFieldParser implements ParserInterface
         }
 
         $defaults = [
-            "validation" => "",
+            "validation" => null,
             "type" => "text",
-            "defaultValue" => "",
+            "defaultValue" => null,
+            "label" => null
         ];
 
         $config = array_merge($defaults, $input);
         return new Field(
             $input["name"],
+            $config["label"],
             $config["type"],
             $config["defaultValue"],
             $config["validation"]

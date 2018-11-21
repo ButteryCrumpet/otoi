@@ -1,0 +1,20 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <form action="/confirm" method="post">
+        {% for field in form %}
+            <p><label for="{{ field.name }}">{{ field.label }}</label>: <input type="{{ field.type }}" name="{{ field.name }}" value="{{field.value}}"></p>
+            {% if displayErrors and field.errors %}
+                <div>
+                    {% for error in field.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

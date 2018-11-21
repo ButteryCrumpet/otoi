@@ -6,11 +6,18 @@ namespace Otoi\Parsers;
 use Otoi\Interfaces\ParserInterface;
 use Otoi\Models\EmailAddress;
 use Otoi\Models\MailConfig;
-use Otoi\StringPlaceholder;
+use Otoi\StringStore;
 
 class ArrayMailConfigParser implements ParserInterface
 {
     static private $necessary = ["to", "from", "subject", "template"];
+
+    private $store;
+
+    public function __construct(StringStore $store)
+    {
+        $this->store = $store;
+    }
 
     public function parse($input): MailConfig
     {
@@ -48,7 +55,7 @@ class ArrayMailConfigParser implements ParserInterface
         if ($first !== "@") {
             return $in;
         }
-        return new StringPlaceholder(mb_substr($in, 1));
+        return $this->store->makePlaceholder(mb_substr($in, 1));
     }
 
 

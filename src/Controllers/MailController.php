@@ -9,10 +9,9 @@ use Otoi\Interfaces\MailConfigLoaderInterface;
 use Otoi\Interfaces\TemplateInterface;
 use Otoi\Interfaces\ValidationInterface;
 use Otoi\Mailer;
-use Otoi\Models\EmailAddress;
 use Otoi\Models\Form;
 use Otoi\Models\MailConfig;
-use Otoi\StringPlaceholder;
+use Otoi\StringStore;
 use SuperSimpleFramework\Interfaces\RequestAwareInterface;
 use SuperSimpleFramework\Traits\RequestAware;
 
@@ -25,17 +24,20 @@ class MailController implements RequestAwareInterface
     private $formLoader;
     private $mailConfigLoader;
     private $form;
+    private $placeholderStore;
 
     public function __construct(
         TemplateInterface $templates,
         ValidationInterface $validator,
         FormLoaderInterface $formLoader,
-        MailConfigLoaderInterface $mailConfigLoader
+        MailConfigLoaderInterface $mailConfigLoader,
+        StringStore $placeholderStore
     ) {
         $this->templates = $templates;
         $this->validation = $validator;
         $this->formLoader = $formLoader;
         $this->mailConfigLoader = $mailConfigLoader;
+        $this->placeholderStore = $placeholderStore;
     }
 
     public function mail($formName = "default")
@@ -46,12 +48,16 @@ class MailController implements RequestAwareInterface
         }
 
         $configs = $this->mailConfigLoader->load($formName);
+
+        foreach ($this->form as $field) {
+            $this->placeholderStore[$field->getName()] = $field->getValue();
+        }
+
         $mailer = new Mailer($this->templates);
         foreach ($configs as $config) {
             if ($this->meetsConditions($config)) {
-                $this->prep($config);
-                $mailer->send($config, $this->form);
-                var_dump("hi");
+                $sent = $mailer->send($config, $this->form);
+                var_dump($sent);
             }
         }
         $response = new Response(200);
@@ -66,44 +72,6 @@ class MailController implements RequestAwareInterface
         $checker = new ConditionCheck();
         $met = $checker->check($config, $this->form);
         return $met;
-    }
-
-    private function prep(MailConfig $config)
-    {
-        $this->setEmailPlaceholders($config->getTo());
-        $this->setEmailPlaceholders($config->getFrom());
-        foreach ($config->getBcc() as $bcc) {
-            $this->setEmailPlaceholders($bcc);
-        }
-        foreach ($config->getCc() as $cc) {
-            $this->setEmailPlaceholders($cc);
-        }
-    }
-
-    private function setEmailPlaceholders(EmailAddress $email)
-    {
-        $name = $email->getName();
-        $address = $email->getAddress();
-        if ($name instanceof StringPlaceholder) {
-            $this->setPlaceholder($name);
-        }
-        if ($address instanceof StringPlaceholder) {
-            $this->setPlaceholder($address);
-        }
-
-        if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {
-            throw new \RuntimeException("$address is not a valid email address");
-        }
-    }
-
-    private function setPlaceholder(StringPlaceholder $placeholder)
-    {
-        $name = $placeholder->getName();
-        if (!isset($this->form[$name])) {
-            throw new \InvalidArgumentException("No value of $name exists for placeholder");
-        }
-        $value = $this->form[$name]->getValue();
-        $placeholder->setValue($value);
     }
 
     private function loadForm($name)

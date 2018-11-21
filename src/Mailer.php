@@ -58,6 +58,6 @@ class Mailer
         //        }
         //    }
         //}
-        $mail->send();
+        return $mail->send();
     }
 }

@@ -7,9 +7,10 @@ class ArrayMailConfigParserTest extends TestCase
 {
     public function testItInitializes()
     {
+        $store = $this->createMock(\Otoi\StringStore::class);
         $this->assertInstanceOf(
             ArrayMailConfigParser::class,
-            new ArrayMailConfigParser()
+            new ArrayMailConfigParser($store)
         );
     }
 
@@ -23,7 +24,11 @@ class ArrayMailConfigParserTest extends TestCase
             "cc" => [["abc@123.com", "Dude"], "@him"]
         ];
 
-        $parser = new ArrayMailConfigParser();
+        $store = $this->createMock(\Otoi\StringStore::class);
+        $store->method("makePlaceholder")
+            ->willReturn($this->createMock(\Otoi\StringPlaceholder::class));
+
+        $parser = new ArrayMailConfigParser($store);
         $output = $parser->parse($array);
         $this->assertInstanceOf(
             \Otoi\Models\EmailAddress::class,

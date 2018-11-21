@@ -19,6 +19,10 @@ class Field implements ValidatableInterface, ErrorAwareInterface
     /**
      * @var string
      */
+    private $label;
+    /**
+     * @var string
+     */
     private $type;
     /**
      * @var mixed
@@ -43,18 +47,21 @@ class Field implements ValidatableInterface, ErrorAwareInterface
 
     /**
      * Field constructor.
-     * @param $name
-     * @param $type
-     * @param $defaultValue
-     * @param $validation
+     * @param $name string
+     * @param $label string
+     * @param $type string
+     * @param $defaultValue mixed
+     * @param $validation mixed
      */
     public function __construct(
         $name,
-        $type,
-        $defaultValue,
-        $validation
+        $label = null,
+        $type = "text",
+        $defaultValue = null,
+        $validation = null
     ) {
         $this->name = $name;
+        $this->label = is_null($label) ? ucfirst($name) : $label;
         $this->type = $type;
         $this->defaultValue = $defaultValue;
         $this->validation = $validation;
@@ -74,6 +81,14 @@ class Field implements ValidatableInterface, ErrorAwareInterface
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return $this->label;
     }
 
     /**
@@ -114,6 +129,14 @@ class Field implements ValidatableInterface, ErrorAwareInterface
     public function setValid()
     {
         $this->valid = true;
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
     }
 
     /**

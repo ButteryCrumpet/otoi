@@ -8,6 +8,7 @@ use Otoi\Loaders\FormLoader;
 use Otoi\Loaders\MailConfigLoader;
 use Otoi\Parsers\ArrayMailConfigParser;
 use Otoi\Parsers\StringValidationParser;
+use Otoi\Middleware\FormMiddleware;
 use Otoi\Strategies\PHPFileStrategy;
 use Otoi\Parsers\ArrayFieldParser;
 use SuperSimpleFramework\AppContainer;
@@ -21,9 +22,24 @@ class OtoiContainer extends AppContainer
     public function __construct()
     {
         parent::__construct();
-        
+
+        $this->register("debug", true);
+        $this->register("template-cache", dirname(__FILE__) . "/cache/twig");
+
         $this->register("session-middleware", function () {
             return new SessionMiddleware();
+        });
+
+        $this->register(FormBox::class, function () {
+            return new FormBox();
+        });
+
+        $this->register(FormMiddleware::class, function ($c) {
+           return new FormMiddleware(
+               $c->get(FormBox::class),
+               $c->get(ValidationInterface::class),
+               $c->get(FormLoaderInterface::class)
+           );
         });
 
         $this->register("rule-map", function () {
@@ -55,8 +71,8 @@ class OtoiContainer extends AppContainer
             );
         });
 
-        $this->register(TemplateInterface::class, function () {
-            return new Templates();
+        $this->register(TemplateInterface::class, function ($c) {
+            return new Templates($c->get("template-cache"), $c->get("debug"));
         });
 
         $this->register("form-file-loader", function ($c) {
@@ -85,8 +101,12 @@ class OtoiContainer extends AppContainer
             );
         });
 
-        $this->register("mail-config-parser", function () {
-            return new ArrayMailConfigParser();
+        $this->register("mail-config-parser", function ($c) {
+            return new ArrayMailConfigParser($c->get(StringStore::class));
+        });
+
+        $this->register(StringStore::class, function () {
+           return new StringStore();
         });
     }
 }

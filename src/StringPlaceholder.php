@@ -4,12 +4,13 @@ namespace Otoi;
 
 class StringPlaceholder
 {
+    private $store;
     private $name;
-    private $value;
 
-    public function __construct($name)
+    public function __construct($name, StringStore $store)
     {
         $this->name = $name;
+        $this->store = $store;
     }
 
     public function getName()
@@ -17,29 +18,21 @@ class StringPlaceholder
         return $this->name;
     }
 
-    public function setValue($value)
+    public function getStore()
     {
-        if (!is_string($value)) {
-
-            throw new \InvalidArgumentException(sprintf(
-                "Value must be a string %s was given",
-                gettype($value)
-            ));
-        }
-
-        $this->value = $value;
+        return $this->store;
     }
 
     public function __toString()
     {
-       if (is_null($this->value)) {
+       if (!isset($this->store[$this->name])) {
            $message = sprintf(
-               "StringPlaceholder of name %s has not been given a value before being displayed",
+               "StringStore does not contain value for name %s",
                $this->name
            );
            trigger_error($message, E_USER_ERROR);
            return '';
        }
-       return $this->value;
+       return $this->store[$this->name];
     }
 }

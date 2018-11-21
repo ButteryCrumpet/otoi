@@ -4,7 +4,7 @@
 </head>
 <body>
 {% for field in form %}
-    <h4>{{ field.name }}</h4>
+    <h4>{{ field.label }}: {{ field.value }}</h4>
 {% endfor %}
 </body>
 </html>

@@ -6,7 +6,7 @@ use Otoi\Models\MailConfig;
 
 class ConditionCheck
 {
-    public function check(MailConfig $config, array $fields)
+    public function check(MailConfig $config, $fields)
     {
         $cond = $config->getCondition();
         if ($cond === "always") {

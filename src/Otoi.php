@@ -8,6 +8,7 @@ use Otoi\Controllers\MailController;
 use Otoi\Interfaces\FormLoaderInterface;
 use Otoi\Middleware\DebugMiddleware;
 use Otoi\Middleware\ErrorHandlerMiddleware;
+use Otoi\Middleware\FormMiddleware;
 use Psr\Http\Message\ServerRequestInterface;
 use SuperSimpleFramework\App;
 
@@ -17,10 +18,16 @@ class Otoi
     private $base;
     private $container;
 
-    public function __construct($base = null, $configDir = null)
+    public static function quickRun($base)
+    {
+        $app = new Otoi($base);
+        $app->run();
+    }
+
+    public function __construct($base, $configDir = null)
     {
         $configDir = is_null($configDir) ? dirname(__FILE__) . "/config" : $configDir;
-        $this->base = is_null($base) ? $_SERVER["REQUEST_URI"] : $base;
+        $this->base = $base;
         $this->container = new OtoiContainer();
         $this->container->register("config_dir", $configDir);
         $this->app = new App($this->container);
@@ -46,7 +53,7 @@ class Otoi
             });
             foreach ($forms as $form) {
                 $group->group("{" . $form . "}", function ($group) {
-                    $group->get("/", FormController::class . ":display");
+                    $group->get("[/]", FormController::class . ":index");
                     $group->post( "/confirm", FormController::class . ":confirm");
                     $group->post("/mail", FormController::class . ":mail");
                     $group->get("thanks", FormController::class . ":thanks");
@@ -55,6 +62,7 @@ class Otoi
         })->with([
             DebugMiddleware::class,
             ErrorHandlerMiddleware::class,
+            FormMiddleware::class,
             "session-middleware",
         ]);
     }
