@@ -72,15 +72,21 @@ class OtoiContainer extends AppContainer
         });
 
         $this->register(TemplateInterface::class, function ($c) {
-            return new Templates($c->get("template-cache"), $c->get("debug"));
+            $templates = new Templates(
+                $c->get("template-dir"),
+                $c->get("template-cache"),
+                $c->get("debug")
+            );
+            $templates->enablePhpIncludes();
+            return $templates;
         });
 
         $this->register("form-file-loader", function ($c) {
-            return new PHPFileStrategy($c->get("config_dir") . "/forms");
+            return new PHPFileStrategy($c->get("config-dir") . "/forms");
         });
 
         $this->register("mail-file-loader", function ($c) {
-            return new PHPFileStrategy($c->get("config_dir") . "/mail");
+            return new PHPFileStrategy($c->get("config-dir") . "/mail");
         });
 
         $this->register(FormLoaderInterface::class, function ($c) {

@@ -24,12 +24,19 @@ class Otoi
         $app->run();
     }
 
-    public function __construct($base, $configDir = null)
+    public function __construct($base, $configDir = null, $templateDir = null)
     {
         $configDir = is_null($configDir) ? dirname(__FILE__) . "/config" : $configDir;
+        $templateDir = is_null($templateDir) ? dirname(__FILE__) . '/templates' : $templateDir;
         $this->base = $base;
         $this->container = new OtoiContainer();
-        $this->container->register("config_dir", $configDir);
+        $this->container->register("config-dir", $configDir);
+        $this->container->register("template-dir", $templateDir);
+        $config = new Config();
+        $this->container->register(Config::class, function () use ($config) {
+            return $config;
+        });
+        $config["base-url"] = $this->base;
         $this->app = new App($this->container);
         $this->setRoutes();
     }
@@ -45,10 +52,10 @@ class Otoi
         $forms = $loader->list();
         $this->app->group($this->base, function ($group) use ($forms) {
             $group->get("[/]", FormController::class . ":index");
-            $group->post("confirm", FormController::class . ":confirm");
-            $group->post("mail", MailController::class . ":mail");
-            $group->get("thanks", FormController::class . ":thanks");
-            $group->group("admin", function ($group) {
+            $group->post("/confirm", FormController::class . ":confirm");
+            $group->post("/mail", MailController::class . ":mail");
+            $group->get("/thanks", FormController::class . ":thanks");
+            $group->group("/admin", function ($group) {
                 $group->get("/", Admin::class . ":index");
             });
             foreach ($forms as $form) {
@@ -62,8 +69,8 @@ class Otoi
         })->with([
             DebugMiddleware::class,
             ErrorHandlerMiddleware::class,
-            FormMiddleware::class,
             "session-middleware",
+            FormMiddleware::class
         ]);
     }
 }

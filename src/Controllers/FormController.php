@@ -3,6 +3,7 @@
 namespace Otoi\Controllers;
 
 use GuzzleHttp\Psr7\Response;
+use Otoi\Config;
 use Otoi\FormBox;
 use Otoi\Interfaces\FormLoaderInterface;
 use Otoi\Interfaces\MailConfigLoaderInterface;
@@ -17,18 +18,17 @@ class FormController implements RequestAwareInterface
     use RequestAware;
 
     private $templates;
-    private $mailConfigLoader;
-    private $form;
     private $formBox;
+    private $config;
 
     public function __construct(
         TemplateInterface $templates,
         FormBox $formBox,
-        MailConfigLoaderInterface $mailConfigLoader
+        Config $config
     ) {
         $this->templates = $templates;
         $this->formBox = $formBox;
-        $this->mailConfigLoader = $mailConfigLoader;
+        $this->config = $config;
     }
 
     public function index($formName = "default")
@@ -47,8 +47,9 @@ class FormController implements RequestAwareInterface
     {
         $form = $this->formBox->get();
         if (!$form->isValid()) {
-            $resp = new Response(302);
-            return $resp->withHeader("Location", "/?errors");
+            $resp = new Response(303);
+            $base = $this->config["base-url"];
+            return $resp->withHeader("Location", "$base?errors");
         }
         $body = $this->templates->render("$formName/confirm.twig.html", ["form" => $this->form]);
         return new Response(200, [], $body);
@@ -56,6 +57,7 @@ class FormController implements RequestAwareInterface
 
     public function thanks($formName = "default")
     {
-        return new Response(200, [], "thanks");
+        $body = $this->templates->render("$formName/confirm.twig.html");
+        return new Response(200, [], $body);
     }
 }
