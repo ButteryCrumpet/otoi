@@ -28,7 +28,7 @@ class Otoi
     {
         $configDir = is_null($configDir) ? dirname(__FILE__) . "/config" : $configDir;
         $templateDir = is_null($templateDir) ? dirname(__FILE__) . '/templates' : $templateDir;
-        $this->base = $base;
+        $this->base = rtrim($base, "/");
         $this->container = new OtoiContainer();
         $this->container->register("config-dir", $configDir);
         $this->container->register("template-dir", $templateDir);
@@ -59,13 +59,13 @@ class Otoi
         }
         $regex = implode("|", $forms);
         $this->app->group($this->base, function ($group) use ($regex) {
+            $group->get("/{form:$regex}[/]", FormController::class . ":index");
+            $group->post( "/{form:$regex}/confirm", FormController::class . ":confirm");
+            $group->post("/{form:$regex}/mail", FormController::class . ":mail");
+            $group->get("/{form:$regex}/thanks", FormController::class . ":thanks");
             $group->group("/admin", function ($group) {
                 $group->get("/", Admin::class . ":index");
             });
-            $group->get("/{form:$regex}[/]", FormController::class . ":index");
-            $group->post( "{form:$regex}/confirm", FormController::class . ":confirm");
-            $group->post("{form:$regex}/mail", FormController::class . ":mail");
-            $group->get("{form:$regex}/thanks", FormController::class . ":thanks");
         })->with([
             "session-middleware",
             FormMiddleware::class

@@ -16,13 +16,13 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
             $response = $handler->handle($request);
         } catch (\Exception $e) {
             $body = sprintf(
-                "<html><body><h5>%s with message \"%s\"</h5><h5>File: %s:%s</h5>%s</body></html>",
+                "<html><body><h5>%s with message \"%s\"</h5><h5>File: %s:%s</h5>%s<div>%s</div></div></body></html>",
                 get_class($e),
                 $e->getMessage(),
                 $e->getFile(),
                 $e->getLine(),
-                $this->render($e->getFile(), $e->getLine())
-                //highlight_file($e->getFile(), true)
+                $this->render($e->getFile(), $e->getLine()),
+                highlight_string($e->getTraceAsString())
             );
             return new Response(500, [], $body);
         }

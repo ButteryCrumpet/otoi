@@ -17,6 +17,8 @@ class Templates implements TemplateInterface
             'cache' => $cache,
         ));
         $this->twig->addGlobal("ROOT", $_SERVER["DOCUMENT_ROOT"]);
+        $this->twig->addGlobal("HOST", $_SERVER['HTTP_HOST']);
+        $this->twig->addGlobal("URI", $_SERVER["REQUEST_URI"]);
         $this->twig->addExtension(new \Twig_Extension_Debug());
     }
 

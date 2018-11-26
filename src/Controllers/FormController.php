@@ -5,7 +5,6 @@ namespace Otoi\Controllers;
 use GuzzleHttp\Psr7\Response;
 use Otoi\Config;
 use Otoi\FormBox;
-use Otoi\Interfaces\MailConfigLoaderInterface;
 use Otoi\Interfaces\TemplateInterface;
 use SuperSimpleFramework\Interfaces\RequestAwareInterface;
 use SuperSimpleFramework\Traits\RequestAware;
@@ -35,8 +34,9 @@ class FormController implements RequestAwareInterface
         $params = $this->request->getQueryParams();
         $displayErrors = isset($params["errors"]);
         $body = $this->templates->render("$formName/index.twig.html", [
-                "form" => $form,
-                "displayErrors" => $displayErrors
+            "action" => $this->buildActionUrl($formName, "confirm"),
+            "form" => $form,
+            "displayErrors" => $displayErrors
         ]);
         return new Response(200, [], $body);
     }
@@ -47,10 +47,13 @@ class FormController implements RequestAwareInterface
         $form = $this->formBox->get();
         if (!$form->isValid()) {
             $resp = new Response(303);
-            $base = $this->config["base-url"];
-            return $resp->withHeader("Location", "$base?errors");
+            $url = $this->buildActionUrl($formName, "?errors");
+            return $resp->withHeader("Location", $url);
         }
-        $body = $this->templates->render("$formName/confirm.twig.html", ["form" => $form]);
+        $body = $this->templates->render("$formName/confirm.twig.html", [
+            "action" => $this->buildActionUrl($formName, "mail"),
+            "form" => $form
+        ]);
         return new Response(200, [], $body);
     }
 
@@ -59,5 +62,11 @@ class FormController implements RequestAwareInterface
         $formName = empty($formName) ? "default" : $formName;
         $body = $this->templates->render("$formName/thanks.twig.html");
         return new Response(200, [], $body);
+    }
+
+    private function buildActionUrl($formName, $action)
+    {
+        $action = $formName !== "default" ? "/$formName/$action" : "/$action";
+        return $this->config["base-url"] . $action;
     }
 }

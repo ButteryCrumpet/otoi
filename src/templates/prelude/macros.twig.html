@@ -62,3 +62,7 @@
         >
     {% endif %}
 {% endmacro %}
+
+{% macro hidden(field) %}
+    <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+{% endmacro %}

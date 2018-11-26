@@ -2,13 +2,10 @@
 
 namespace Otoi;
 
-use Otoi\Models\MailConfig;
-
 class ConditionCheck
 {
-    public function check(MailConfig $config, $fields)
+    public function check($cond, $fields)
     {
-        $cond = $config->getCondition();
         if ($cond === "always") {
             return true;
         }
@@ -28,14 +25,12 @@ class ConditionCheck
 
     private function singleCond($cond, $fields)
     {
-        if (strpos($cond, "=") !== false) {
-            $exploded = explode("=", $cond);
-            if (!isset($fields[$exploded[0]])) {
-                return false;
-            }
-            $value = $fields[$exploded[0]]->getValue();
-            $result =  $value === $exploded[1];
-            return $result;
+        if (strpos($cond,"==") !== false) {
+            return $this->eq($cond, $fields);
+        }
+
+        if (strpos($cond, "[x]")) {
+            return $this->in($cond, $fields);
         }
     }
 
@@ -53,5 +48,29 @@ class ConditionCheck
         }
 
         return false;
+    }
+
+    private function eq($cond, $fields)
+    {
+        $exploded = explode("==", $cond);
+        if (!isset($fields[$exploded[0]])) {
+            return false;
+        }
+        $value = $fields[$exploded[0]]->getValue();
+        $result = $value === $exploded[1];
+        return $result;
+    }
+
+    private function in($cond, $fields)
+    {
+        $exploded = explode("[x]", $cond);
+        if (!isset($fields[$exploded[0]])) {
+            return false;
+        }
+        $value = $fields[$exploded[0]]->getValue();
+        if (!is_array($value)) {
+            return false;
+        }
+        return in_array($exploded[1], $value);
     }
 }

@@ -27,6 +27,7 @@ class MailController implements RequestAwareInterface
     private $mailConfigLoader;
     private $form;
     private $placeholderStore;
+    private $conditionChecker;
 
     public function __construct(
         TemplateInterface $templates,
@@ -40,15 +41,16 @@ class MailController implements RequestAwareInterface
         $this->config = $config;
         $this->mailConfigLoader = $mailConfigLoader;
         $this->placeholderStore = $placeholderStore;
+        $this->conditionChecker = new ConditionCheck();
     }
 
-    public function mail($formName = "default")
+    public function mail($formName)
     {
+        $formName = empty($formName) ? "default" : $formName;
         $form = $this->formBox->get();
         if (!$form->isValid()) {
             $resp = new Response(303);
-            $base = $this->config["base-url"];
-            return $resp->withHeader("Location", "$base?errors");
+            return $resp->withHeader("Location", $this->buildActionUrl($formName, "?errors"));
         }
 
         $configs = $this->mailConfigLoader->load($formName);
@@ -58,23 +60,29 @@ class MailController implements RequestAwareInterface
         }
 
         $mailer = new Mailer($this->templates);
+        $default = [];
+        $sent = false;
         foreach ($configs as $config) {
-            if ($this->meetsConditions($config)) {
-                $sent = $mailer->send($config, $form);
-                var_dump($sent);
+            if (is_null($config->getCondition())) {
+                $default[] = $config;
+                continue;
+            }
+            if ($this->conditionChecker->check($config->getCondition(), $form)) {
+                $sent = $sent || $mailer->send($config, $form);
+            }
+        }
+        if (!$sent) {
+            foreach ($default as $config) {
+                $mailer->send($config, $form);
             }
         }
         $response = new Response(200);
-        return $response->withHeader("Location", "/");
+        return $response->withHeader("Location", $this->buildActionUrl($formName, "thanks"));
     }
 
-    private function meetsConditions(MailConfig $config)
+    private function buildActionUrl($formName, $action)
     {
-        if (is_null($config->getCondition())) {
-            return true;
-        }
-        $checker = new ConditionCheck();
-        $met = $checker->check($config, $this->form);
-        return $met;
+        $action = $formName !== "default" ? "/$formName/$action" : "/$action";
+        return $this->config["base-url"] . $action;
     }
 }

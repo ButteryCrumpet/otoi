@@ -75,7 +75,7 @@ class Field implements ValidatableInterface, ErrorAwareInterface
     }
 
     /**
-     * @param $value
+     * @param $value string
      */
     public function setValue($value)
     {

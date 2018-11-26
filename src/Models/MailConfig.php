@@ -9,11 +9,11 @@ namespace Otoi\Models;
 class MailConfig
 {
     /**
-     * @var string
+     * @var EmailAddress
      */
     private $to;
     /**
-     * @var string
+     * @var EmailAddress
      */
     private $from;
     /**
