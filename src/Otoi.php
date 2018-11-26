@@ -38,6 +38,10 @@ class Otoi
         });
         $config["base-url"] = $this->base;
         $this->app = new App($this->container);
+        $this->app->with([
+            DebugMiddleware::class,
+            ErrorHandlerMiddleware::class
+        ]);
         $this->setRoutes();
     }
 
@@ -50,25 +54,19 @@ class Otoi
     {
         $loader = $this->container->get(FormLoaderInterface::class);
         $forms = $loader->list();
-        $this->app->group($this->base, function ($group) use ($forms) {
-            $group->get("[/]", FormController::class . ":index");
-            $group->post("/confirm", FormController::class . ":confirm");
-            $group->post("/mail", MailController::class . ":mail");
-            $group->get("/thanks", FormController::class . ":thanks");
+        if ($key = array_search("default", $forms)) {
+            $forms[$key] = "";
+        }
+        $regex = implode("|", $forms);
+        $this->app->group($this->base, function ($group) use ($regex) {
             $group->group("/admin", function ($group) {
                 $group->get("/", Admin::class . ":index");
             });
-            foreach ($forms as $form) {
-                $group->group("{" . $form . "}", function ($group) {
-                    $group->get("[/]", FormController::class . ":index");
-                    $group->post( "/confirm", FormController::class . ":confirm");
-                    $group->post("/mail", FormController::class . ":mail");
-                    $group->get("thanks", FormController::class . ":thanks");
-                });
-            }
+            $group->get("/{form:$regex}[/]", FormController::class . ":index");
+            $group->post( "{form:$regex}/confirm", FormController::class . ":confirm");
+            $group->post("{form:$regex}/mail", FormController::class . ":mail");
+            $group->get("{form:$regex}/thanks", FormController::class . ":thanks");
         })->with([
-            DebugMiddleware::class,
-            ErrorHandlerMiddleware::class,
             "session-middleware",
             FormMiddleware::class
         ]);

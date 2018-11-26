@@ -19,6 +19,9 @@ class DebugMiddleware implements MiddlewareInterface
 
         $body = $response->getBody()->getContents();
         $bar = $this->renderDebugBar($path, $response->getStatusCode(), $ms);
+        if (empty($body)) {
+            return $response->withBody(stream_for($bar));
+        }
 
         $body = str_replace("</body>", $bar . "</body>", $body);
 

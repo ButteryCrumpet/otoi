@@ -28,8 +28,9 @@ class FormController implements RequestAwareInterface
         $this->config = $config;
     }
 
-    public function index($formName = "default")
+    public function index($formName)
     {
+        $formName = empty($formName) ? "default" : $formName;
         $form = $this->formBox->get();
         $params = $this->request->getQueryParams();
         $displayErrors = isset($params["errors"]);
@@ -42,19 +43,21 @@ class FormController implements RequestAwareInterface
 
     public function confirm($formName = "default")
     {
+        $formName = empty($formName) ? "default" : $formName;
         $form = $this->formBox->get();
         if (!$form->isValid()) {
             $resp = new Response(303);
             $base = $this->config["base-url"];
             return $resp->withHeader("Location", "$base?errors");
         }
-        $body = $this->templates->render("$formName/confirm.twig.html", ["form" => $this->form]);
+        $body = $this->templates->render("$formName/confirm.twig.html", ["form" => $form]);
         return new Response(200, [], $body);
     }
 
     public function thanks($formName = "default")
     {
-        $body = $this->templates->render("$formName/confirm.twig.html");
+        $formName = empty($formName) ? "default" : $formName;
+        $body = $this->templates->render("$formName/thanks.twig.html");
         return new Response(200, [], $body);
     }
 }
