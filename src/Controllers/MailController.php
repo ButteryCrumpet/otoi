@@ -56,7 +56,10 @@ class MailController implements RequestAwareInterface
         $configs = $this->mailConfigLoader->load($formName);
 
         foreach ($form as $field) {
-            $this->placeholderStore[$field->getName()] = $field->getValue();
+            $val = $field->getValue();
+            if (is_string($val)) {
+                $this->placeholderStore[$field->getName()] = $val;
+            }
         }
 
         $mailer = new Mailer($this->templates);
@@ -76,7 +79,7 @@ class MailController implements RequestAwareInterface
                 $mailer->send($config, $form);
             }
         }
-        $response = new Response(200);
+        $response = new Response(303);
         return $response->withHeader("Location", $this->buildActionUrl($formName, "thanks"));
     }
 

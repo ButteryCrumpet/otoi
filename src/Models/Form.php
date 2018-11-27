@@ -21,6 +21,11 @@ class Form implements \ArrayAccess, \Iterator
         return $valid;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
     public function current()
     {
         return \current($this->fields);

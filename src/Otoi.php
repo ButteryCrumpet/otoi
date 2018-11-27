@@ -58,12 +58,13 @@ class Otoi
             $forms[$key] = "";
         }
         $regex = implode("|", $forms);
-        $this->app->group($this->base, function ($group) use ($regex) {
-            $group->get("/{form:$regex}[/]", FormController::class . ":index");
-            $group->post( "/{form:$regex}/confirm", FormController::class . ":confirm");
-            $group->post("/{form:$regex}/mail", FormController::class . ":mail");
-            $group->get("/{form:$regex}/thanks", FormController::class . ":thanks");
-            $group->group("/admin", function ($group) {
+        $this->app->group($this->base . "/", function ($group) use ($regex) {
+            $group->get("{form:$regex}[/]", FormController::class . ":index");
+            $group->post("confirm", FormController::class . ":confirm");
+            $group->post( "{form:$regex}/confirm", FormController::class . ":confirm");
+            $group->post("{form:$regex}/mail", MailController::class . ":mail");
+            $group->get("{form:$regex}/thanks", FormController::class . ":thanks");
+            $group->group("admin", function ($group) {
                 $group->get("/", Admin::class . ":index");
             });
         })->with([
