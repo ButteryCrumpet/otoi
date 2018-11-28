@@ -27,11 +27,12 @@ class FormController implements RequestAwareInterface
         $this->config = $config;
     }
 
-    public function index($formName)
+    public function index($formName = "")
     {
         $formName = empty($formName) ? "default" : $formName;
         $form = $this->formBox->get();
         $params = $this->request->getQueryParams();
+        throw new \Exception("hurp");
         $displayErrors = isset($params["errors"]);
         $body = $this->templates->render("$formName/index.twig.html", [
             "action" => $this->buildActionUrl($formName, "confirm"),

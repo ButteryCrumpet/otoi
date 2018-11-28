@@ -44,7 +44,7 @@ class MailController implements RequestAwareInterface
         $this->conditionChecker = new ConditionCheck();
     }
 
-    public function mail($formName)
+    public function mail($formName = "")
     {
         $formName = empty($formName) ? "default" : $formName;
         $form = $this->formBox->get();
