@@ -22,7 +22,6 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
                 $e->getFile(),
                 $e->getLine(),
                 $this->render_file($e->getFile(), $e->getLine()),
-                //highlight_file($e->getFile()),
                 $this->render_trace($e)
             );
             return new Response(500, [], $body);

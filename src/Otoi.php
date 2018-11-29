@@ -9,6 +9,7 @@ use Otoi\Interfaces\FormLoaderInterface;
 use Otoi\Middleware\DebugMiddleware;
 use Otoi\Middleware\ErrorHandlerMiddleware;
 use Otoi\Middleware\FormMiddleware;
+use Otoi\Middleware\SessionMiddleware;
 use Psr\Http\Message\ServerRequestInterface;
 use SuperSimpleFramework\App;
 
@@ -29,19 +30,18 @@ class Otoi
         $configDir = is_null($configDir) ? dirname(__FILE__) . "/config" : $configDir;
         $templateDir = is_null($templateDir) ? dirname(__FILE__) . '/templates' : $templateDir;
         $this->base = rtrim($base, "/");
+
         $this->container = new OtoiContainer();
         $this->container->register("config-dir", $configDir);
         $this->container->register("template-dir", $templateDir);
+        $this->container->register("template-cache", dirname(__FILE__) . "/cache/twig");
         $config = new Config();
         $this->container->register(Config::class, function () use ($config) {
             return $config;
         });
         $config["base-url"] = $this->base;
         $this->app = new App($this->container);
-        $this->app->with([
-            DebugMiddleware::class,
-            ErrorHandlerMiddleware::class
-        ]);
+        $this->app->with(ErrorHandlerMiddleware::class);
         $this->setRoutes();
     }
 
@@ -70,7 +70,7 @@ class Otoi
                 $group->get("/", Admin::class . ":index");
             });
         })->with([
-            "session-middleware",
+            SessionMiddleware::class,
             FormMiddleware::class
         ]);
     }

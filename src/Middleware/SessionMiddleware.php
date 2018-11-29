@@ -2,6 +2,7 @@
 
 namespace Otoi\Middleware;
 
+use Otoi\Interfaces\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -9,38 +10,27 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SessionMiddleware implements MiddlewareInterface
 {
-    private $destroy;
+    private $session;
 
-    public function __construct($destroy = false)
+    public function __construct(SessionInterface $session)
     {
-        $this->destroy = $destroy;
+        $this->session = $session;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (\headers_sent()) {
+        if (!$this->session->start()) {
             return $handler->handle($request);
         }
 
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $data = (array)$request->getParsedBody() ?? [];
-        if (isset($_SESSION["otoi_data"])) {
-            $data = array_merge($_SESSION["otoi_data"], $data);
-        }
-        $_SESSION["otoi_data"] = $data;
+        $data = array_merge($sessionData = $this->session->get("otoi_data", []), $data);
+        $this->session->set("otoi_data", $data);
+
         $response = $handler->handle($request->withParsedBody($data));
 
-        if ($this->destroy === "success" && $response->getStatusCode() < 400) {
-            session_destroy();
-        }
-        if ($this->destroy === "fail" && $response->getStatusCode() >= 400) {
-            session_destroy();
-        }
-        if ($this->destroy === true) {
-            session_destroy();
+        if ($this->session->condemned()) {
+            $this->session->forceDestroy();
         }
 
         return $response;

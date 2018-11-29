@@ -8,6 +8,7 @@ use Otoi\Config;
 use Otoi\FormBox;
 use Otoi\Interfaces\FormLoaderInterface;
 use Otoi\Interfaces\MailConfigLoaderInterface;
+use Otoi\Interfaces\SessionInterface;
 use Otoi\Interfaces\TemplateInterface;
 use Otoi\Interfaces\ValidationInterface;
 use Otoi\Mailer;
@@ -28,18 +29,21 @@ class MailController implements RequestAwareInterface
     private $form;
     private $placeholderStore;
     private $conditionChecker;
+    private $session;
 
     public function __construct(
         TemplateInterface $templates,
         FormBox $formBox,
         Config $config,
         MailConfigLoaderInterface $mailConfigLoader,
+        SessionInterface $session,
         StringStore $placeholderStore
     ) {
         $this->templates = $templates;
         $this->formBox = $formBox;
         $this->config = $config;
         $this->mailConfigLoader = $mailConfigLoader;
+        $this->session = $session;
         $this->placeholderStore = $placeholderStore;
         $this->conditionChecker = new ConditionCheck();
     }
@@ -80,6 +84,7 @@ class MailController implements RequestAwareInterface
             }
         }
         $response = new Response(303);
+        $this->session->condemn();
         return $response->withHeader("Location", $this->buildActionUrl($formName, "thanks"));
     }
 
