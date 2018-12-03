@@ -85,7 +85,8 @@ class MailController implements RequestAwareInterface
         }
         $response = new Response(303);
         $this->session->condemn();
-        return $response->withHeader("Location", $this->buildActionUrl($formName, "thanks"));
+        $url =  $this->buildActionUrl("default", "thanks") . "?$formName";
+        return $response->withHeader("Location", $url);
     }
 
     private function buildActionUrl($formName, $action)

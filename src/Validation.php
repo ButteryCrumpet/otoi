@@ -18,6 +18,12 @@ class Validation implements ValidationInterface
 
     public function validate(ValidatableInterface $validatable)
     {
+        // NASTY
+        $validation = $validatable->getValidation();
+        if (is_null($validation)) {
+            $validatable->setValid();
+            return;
+        }
         $validator = $this->factory->parse($validatable->getValidation());
         if ($validator->validate($validatable->getValue())) {
             $validatable->setValid();
