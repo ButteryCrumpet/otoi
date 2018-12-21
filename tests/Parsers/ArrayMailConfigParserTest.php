@@ -31,12 +31,12 @@ class ArrayMailConfigParserTest extends TestCase
         $parser = new ArrayMailConfigParser($store);
         $output = $parser->parse($array);
         $this->assertInstanceOf(
-            \Otoi\Models\EmailAddress::class,
+            \Otoi\Entities\EmailAddress::class,
             $output->getTo(),
             "generates Email for To"
         );
         $this->assertInstanceOf(
-            \Otoi\Models\EmailAddress::class,
+            \Otoi\Entities\EmailAddress::class,
             $output->getFrom(),
             "generates Email for From"
         );

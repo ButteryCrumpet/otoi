@@ -3,7 +3,7 @@
 namespace Otoi\Parsers;
 
 use Otoi\Interfaces\ParserInterface;
-use Otoi\Models\Field;
+use Otoi\Entities\Field;
 
 class ArrayFieldParser implements ParserInterface
 {
@@ -22,6 +22,7 @@ class ArrayFieldParser implements ParserInterface
         $defaults = [
             "validation" => null,
             "type" => "text",
+            "placeholder" => null,
             "defaultValue" => null,
             "label" => null
         ];
@@ -31,6 +32,7 @@ class ArrayFieldParser implements ParserInterface
             $input["name"],
             $config["label"],
             $config["type"],
+            $config["placeholder"],
             $config["defaultValue"],
             $config["validation"]
         );

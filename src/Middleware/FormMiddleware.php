@@ -10,9 +10,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use SuperSimpleFramework\Interfaces\RouteArgsAwareInterface;
 use SuperSimpleFramework\Traits\RouteArgsAware;
 
-class FormMiddleware implements MiddlewareInterface
+class FormMiddleware implements MiddlewareInterface, RouteArgsAwareInterface
 {
     use RouteArgsAware;
 
@@ -32,7 +33,9 @@ class FormMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $form = isset($this->routeArgs[0]) ? $this->routeArgs[0] : "default";
+        $form = isset($this->routeArgs["form"]) && !empty($this->routeArgs["form"])
+            ? $this->routeArgs["form"]
+            : "default";
         $form = $this->formLoader->load($form);
 
         $values = $request->getParsedBody();

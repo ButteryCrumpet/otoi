@@ -1,6 +1,6 @@
 <?php
 
-namespace Otoi\Models;
+namespace Otoi\Entities;
 
 /**
  * Class Email
@@ -13,16 +13,16 @@ class EmailAddress
      */
     private $address;
     /**
-     * @var null|string
+     * @var string
      */
     private $name;
 
     /**
      * Email constructor.
      * @param string $address
-     * @param null|string $name
+     * @param string $name
      */
-    public function __construct($address, $name = null)
+    public function __construct($address, $name = "")
     {
         $this->address = $address;
         $this->name = $name;
@@ -37,7 +37,7 @@ class EmailAddress
     }
 
     /**
-     * @return null|string
+     * @return string
      */
     public function getName()
     {

@@ -6,6 +6,15 @@ use PHPUnit\Framework\TestCase;
 class FormLoaderTest extends TestCase
 {
 
+    private $schema = [
+        "templates" => [
+            "index" => "file1",
+            "confirm" => "file2",
+            "final" => "file3"
+        ],
+        "fields" => [["1"]]
+    ];
+
     public function testItInitialises()
     {
         $strategy = $this->createMock(\Otoi\Interfaces\StrategyInterface::class);
@@ -23,15 +32,15 @@ class FormLoaderTest extends TestCase
         $parser = $this->createMock(\Otoi\Interfaces\ParserInterface::class);
         $strategy->expects($this->once())
             ->method("single")
-            ->willReturn([["1"]]);
+            ->willReturn($this->schema);
         $parser->expects($this->once())
             ->method("parse")
-            ->willReturn($this->createMock(\Otoi\Models\Field::class));
+            ->willReturn($this->createMock(\Otoi\Entities\Field::class));
 
         $loader = new FormLoader($strategy, $parser);
         $output = $loader->load("hi");
         $this->assertInstanceOf(
-            \Otoi\Models\Form::class,
+            \Otoi\Entities\Form::class,
             $output
         );
     }
@@ -55,16 +64,16 @@ class FormLoaderTest extends TestCase
         $parser = $this->createMock(\Otoi\Interfaces\ParserInterface::class);
         $strategy->method("list")->willReturn(["1", "2"]);
         $strategy->method("single")
-            ->willReturn([["1"]]);
+            ->willReturn($this->schema);
         $parser->method("parse")
-            ->willReturn($this->createMock(\Otoi\Models\Field::class));
+            ->willReturn($this->createMock(\Otoi\Entities\Field::class));
 
         $loader = new FormLoader($strategy, $parser);
         $output = $loader->all();
         $this->assertInternalType("array", $output);
         foreach ($output as $form) {
             $this->assertInstanceOf(
-                \Otoi\Models\Form::class,
+                \Otoi\Entities\Form::class,
                 $form
             );
         }

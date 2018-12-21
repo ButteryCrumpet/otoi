@@ -12,11 +12,11 @@ class PHPFileStrategy implements StrategyInterface
     {
         $info = new \SplFileInfo($configDir);
         if (!$info->isDir()) {
-            throw new \InvalidArgumentException("Config directory must be valid directory");
+            throw new \InvalidArgumentException("$configDir is not a valid directory");
         }
 
         if (!$info->isReadable()) {
-            throw new \InvalidArgumentException("Config directory must be readable");
+            throw new \InvalidArgumentException("$configDir must be readable");
         }
 
         $this->configDir = rtrim($configDir, "/");

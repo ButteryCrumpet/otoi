@@ -9,7 +9,7 @@ class OtoiTest extends TestCase
     {
         $this->assertInstanceOf(
             Otoi::class,
-            new Otoi()
+            new Otoi("/")
         );
     }
 

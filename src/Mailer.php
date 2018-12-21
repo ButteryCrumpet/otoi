@@ -3,9 +3,11 @@
 namespace Otoi;
 
 use Otoi\Interfaces\TemplateInterface;
-use Otoi\Models\MailConfig;
+use Otoi\Entities\MailConfig;
 use PHPMailer\PHPMailer\PHPMailer;
 
+// Body goes in config, files go here though, move templating out
+// MailConfig -> Email
 class Mailer
 {
     private $templateEngine;

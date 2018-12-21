@@ -1,6 +1,6 @@
 <?php
-
-namespace Otoi\Models;
+// MailConfig => Email <- ConditionalEmail
+namespace Otoi\Entities;
 
 /**
  * Class MailConfig
@@ -9,11 +9,11 @@ namespace Otoi\Models;
 class MailConfig
 {
     /**
-     * @var string
+     * @var EmailAddress
      */
     private $to;
     /**
-     * @var string
+     * @var EmailAddress
      */
     private $from;
     /**

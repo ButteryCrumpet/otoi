@@ -19,6 +19,9 @@ class DebugMiddleware implements MiddlewareInterface
 
         $body = $response->getBody()->getContents();
         $bar = $this->renderDebugBar($path, $response->getStatusCode(), $ms);
+        if (empty($body)) {
+            return $response->withBody(stream_for($bar));
+        }
 
         $body = str_replace("</body>", $bar . "</body>", $body);
 
@@ -30,11 +33,11 @@ class DebugMiddleware implements MiddlewareInterface
         ob_start();
         ?>
         <div style="background-color:rgba(183,21,25,0.82);width:100%;position: fixed;bottom: 0;left: 0;">
-            <div style="color:white;display: flex;justify-content: space-around">
-                <p>PHP Ver. <?= phpversion() ?></p>
-                <p>Path: <?= $path ?></p>
-                <p>Response: <?= $code ?></p>
-                <p>Time: <?= round($time, 3) ?></p>
+            <div style="display: flex;justify-content: space-around">
+                <p style="color: white;padding: 2px">PHP Ver. <?= phpversion() ?></p>
+                <p style="color: white;padding: 2px">Path: <?= $path ?></p>
+                <p style="color: white;padding: 2px">Response: <?= $code ?></p>
+                <p style="color: white;padding: 2px">Time: <?= round($time, 3) ?></p>
             </div>
         </div>
         <?php

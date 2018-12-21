@@ -4,6 +4,7 @@ namespace Otoi;
 
 use Otoi\Interfaces\FormLoaderInterface;
 use Otoi\Interfaces\MailConfigLoaderInterface;
+use Otoi\Interfaces\SessionInterface;
 use Otoi\Loaders\FormLoader;
 use Otoi\Loaders\MailConfigLoader;
 use Otoi\Parsers\ArrayMailConfigParser;
@@ -24,22 +25,13 @@ class OtoiContainer extends AppContainer
         parent::__construct();
 
         $this->register("debug", true);
-        $this->register("template-cache", dirname(__FILE__) . "/cache/twig");
-
-        $this->register("session-middleware", function () {
-            return new SessionMiddleware();
-        });
 
         $this->register(FormBox::class, function () {
             return new FormBox();
         });
 
-        $this->register(FormMiddleware::class, function ($c) {
-           return new FormMiddleware(
-               $c->get(FormBox::class),
-               $c->get(ValidationInterface::class),
-               $c->get(FormLoaderInterface::class)
-           );
+        $this->register(SessionInterface::class, function($c) {
+            return new BasicSession();
         });
 
         $this->register("rule-map", function () {
@@ -72,15 +64,21 @@ class OtoiContainer extends AppContainer
         });
 
         $this->register(TemplateInterface::class, function ($c) {
-            return new Templates($c->get("template-cache"), $c->get("debug"));
+            $templates = new Templates(
+                $c->get("template-dir"),
+                $c->get("template-cache"),
+                $c->get("debug")
+            );
+            $templates->enablePhpIncludes();
+            return $templates;
         });
 
         $this->register("form-file-loader", function ($c) {
-            return new PHPFileStrategy($c->get("config_dir") . "/forms");
+            return new PHPFileStrategy($c->get("config-dir") . "/forms");
         });
 
         $this->register("mail-file-loader", function ($c) {
-            return new PHPFileStrategy($c->get("config_dir") . "/mail");
+            return new PHPFileStrategy($c->get("config-dir") . "/mail");
         });
 
         $this->register(FormLoaderInterface::class, function ($c) {

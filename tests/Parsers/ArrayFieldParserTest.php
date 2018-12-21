@@ -13,7 +13,7 @@ class ArrayFieldParserTest extends TestCase
         );
     }
 
-    public function itParserArray()
+    public function testItParsesArray()
     {
         $parser = new ArrayFieldParser();
         $field = [

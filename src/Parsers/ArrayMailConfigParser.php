@@ -4,8 +4,8 @@ namespace Otoi\Parsers;
 
 
 use Otoi\Interfaces\ParserInterface;
-use Otoi\Models\EmailAddress;
-use Otoi\Models\MailConfig;
+use Otoi\Entities\EmailAddress;
+use Otoi\Entities\MailConfig;
 use Otoi\StringStore;
 
 class ArrayMailConfigParser implements ParserInterface

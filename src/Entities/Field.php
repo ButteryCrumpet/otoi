@@ -1,6 +1,6 @@
 <?php
 
-namespace Otoi\Models;
+namespace Otoi\Entities;
 
 
 use Otoi\Interfaces\ErrorAwareInterface;
@@ -29,6 +29,10 @@ class Field implements ValidatableInterface, ErrorAwareInterface
      */
     private $defaultValue;
     /**
+     * @var string
+     */
+    private $placeholder;
+    /**
      * @var mixed
      */
     private $validation;
@@ -50,6 +54,7 @@ class Field implements ValidatableInterface, ErrorAwareInterface
      * @param $name string
      * @param $label string
      * @param $type string
+     * @param $placeholder string
      * @param $defaultValue mixed
      * @param $validation mixed
      */
@@ -57,18 +62,20 @@ class Field implements ValidatableInterface, ErrorAwareInterface
         $name,
         $label = null,
         $type = "text",
+        $placeholder = null,
         $defaultValue = null,
         $validation = null
     ) {
         $this->name = $name;
         $this->label = is_null($label) ? ucfirst($name) : $label;
         $this->type = $type;
+        $this->placeholder = $placeholder;
         $this->defaultValue = $defaultValue;
         $this->validation = $validation;
     }
 
     /**
-     * @param $value
+     * @param $value string
      */
     public function setValue($value)
     {
@@ -89,6 +96,14 @@ class Field implements ValidatableInterface, ErrorAwareInterface
     public function getLabel(): string
     {
         return $this->label;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPlaceholder()
+    {
+        return $this->placeholder;
     }
 
     /**

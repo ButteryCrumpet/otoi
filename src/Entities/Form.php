@@ -1,15 +1,19 @@
 <?php
 
-namespace Otoi\Models;
+namespace Otoi\Entities;
 
 class Form implements \ArrayAccess, \Iterator
 {
     private $name;
     private $fields = array();
+    private $templates;
+    private $finalLocation;
 
-    public function __construct($name)
+    public function __construct($name, FormTemplates $templates, $finalLocation = null)
     {
         $this->name = $name;
+        $this->templates = $templates;
+        $this->finalLocation = $finalLocation;
     }
 
     public function isValid()
@@ -19,6 +23,11 @@ class Form implements \ArrayAccess, \Iterator
             $valid = $valid && $field->isValid();
         }
         return $valid;
+    }
+
+    public function getName()
+    {
+        return $this->name;
     }
 
     public function current()

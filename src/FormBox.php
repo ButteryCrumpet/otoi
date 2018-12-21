@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: apple
- * Date: 2018/11/21
- * Time: 18:12
- */
 
 namespace Otoi;
 
 
-use Otoi\Models\Form;
+use Otoi\Entities\Form;
 use Otoi\Interfaces\Box;
 
 class FormBox implements Box

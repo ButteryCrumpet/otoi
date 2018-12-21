@@ -9,6 +9,7 @@ use Otoi\Interfaces\FormLoaderInterface;
 use Otoi\Middleware\DebugMiddleware;
 use Otoi\Middleware\ErrorHandlerMiddleware;
 use Otoi\Middleware\FormMiddleware;
+use Otoi\Middleware\SessionMiddleware;
 use Psr\Http\Message\ServerRequestInterface;
 use SuperSimpleFramework\App;
 
@@ -24,13 +25,23 @@ class Otoi
         $app->run();
     }
 
-    public function __construct($base, $configDir = null)
+    public function __construct($base, $configDir = null, $templateDir = null)
     {
         $configDir = is_null($configDir) ? dirname(__FILE__) . "/config" : $configDir;
-        $this->base = $base;
+        $templateDir = is_null($templateDir) ? dirname(__FILE__) . '/templates' : $templateDir;
+        $this->base = rtrim($base, "/");
+
         $this->container = new OtoiContainer();
-        $this->container->register("config_dir", $configDir);
+        $this->container->register("config-dir", $configDir);
+        $this->container->register("template-dir", $templateDir);
+        $this->container->register("template-cache", dirname(__FILE__) . "/cache/twig");
+        $config = new Config();
+        $this->container->register(Config::class, function () use ($config) {
+            return $config;
+        });
+        $config["base-url"] = $this->base;
         $this->app = new App($this->container);
+        $this->app->with(ErrorHandlerMiddleware::class);
         $this->setRoutes();
     }
 
@@ -43,27 +54,24 @@ class Otoi
     {
         $loader = $this->container->get(FormLoaderInterface::class);
         $forms = $loader->list();
-        $this->app->group($this->base, function ($group) use ($forms) {
-            $group->get("[/]", FormController::class . ":index");
+        if ($key = array_search("default", $forms)) {
+            $forms[$key] = "";
+        }
+        $regex = implode("|", $forms);
+        $this->app->group($this->base . "/", function ($group) use ($regex) {
+            $group->get("{form:$regex}[/]", FormController::class . ":index");
             $group->post("confirm", FormController::class . ":confirm");
             $group->post("mail", MailController::class . ":mail");
             $group->get("thanks", FormController::class . ":thanks");
+            $group->post( "{form:$regex}/confirm", FormController::class . ":confirm");
+            $group->post("{form:$regex}/mail", MailController::class . ":mail");
+            $group->get("{form:$regex}/thanks", FormController::class . ":thanks");
             $group->group("admin", function ($group) {
                 $group->get("/", Admin::class . ":index");
             });
-            foreach ($forms as $form) {
-                $group->group("{" . $form . "}", function ($group) {
-                    $group->get("[/]", FormController::class . ":index");
-                    $group->post( "/confirm", FormController::class . ":confirm");
-                    $group->post("/mail", FormController::class . ":mail");
-                    $group->get("thanks", FormController::class . ":thanks");
-                });
-            }
         })->with([
-            DebugMiddleware::class,
-            ErrorHandlerMiddleware::class,
-            FormMiddleware::class,
-            "session-middleware",
+            SessionMiddleware::class,
+            FormMiddleware::class
         ]);
     }
 }
