@@ -6,7 +6,7 @@ confirm.php
 index.php
 mail.php
 temp/*
-cache/*
+src/cache/*
 
 index.php
 .htaccess
