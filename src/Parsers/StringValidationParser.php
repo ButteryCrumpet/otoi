@@ -2,7 +2,6 @@
 
 namespace Otoi\Parsers;
 
-use Otoi\Interfaces\ParserInterface;
 use SuperSimpleValidation\Logic\LogicNot;
 use SuperSimpleValidation\Logic\LogicOr;
 use SuperSimpleValidation\RuleInterface;

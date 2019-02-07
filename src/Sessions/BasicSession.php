@@ -1,9 +1,9 @@
 <?php
 
-namespace Otoi;
+namespace Otoi\Sessions;
 
 
-class BasicSession implements Interfaces\SessionInterface
+class BasicSession implements SessionInterface
 {
     private $condemned = false;
 

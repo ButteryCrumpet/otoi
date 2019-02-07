@@ -1,6 +1,6 @@
 <?php
 
-namespace Otoi\Interfaces;
+namespace Otoi\Validation;
 
 interface ErrorAwareInterface
 {

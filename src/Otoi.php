@@ -6,9 +6,8 @@ use Otoi\Controllers\Admin;
 use Otoi\Controllers\FormController;
 use Otoi\Controllers\MailController;
 use Otoi\Interfaces\FormLoaderInterface;
-use Otoi\Middleware\DebugMiddleware;
 use Otoi\Middleware\ErrorHandlerMiddleware;
-use Otoi\Middleware\FormMiddleware;
+use Otoi\Middleware\RequestValidation;
 use Otoi\Middleware\SessionMiddleware;
 use Psr\Http\Message\ServerRequestInterface;
 use SuperSimpleFramework\App;
@@ -71,7 +70,7 @@ class Otoi
             });
         })->with([
             SessionMiddleware::class,
-            FormMiddleware::class
+            RequestValidation::class
         ]);
     }
 }

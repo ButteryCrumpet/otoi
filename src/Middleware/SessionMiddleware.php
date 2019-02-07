@@ -24,7 +24,7 @@ class SessionMiddleware implements MiddlewareInterface
         }
 
         $data = (array)$request->getParsedBody() ?? [];
-        $data = array_merge($sessionData = $this->session->get("otoi_data", []), $data);
+        $data = array_merge($this->session->get("otoi_data", []), $data);
         $this->session->set("otoi_data", $data);
 
         $response = $handler->handle($request->withParsedBody($data));

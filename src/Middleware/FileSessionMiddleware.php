@@ -9,6 +9,7 @@ use Psr\Http\Message\UploadedFileInterface;
 use Psr\SimpleCache\CacheInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+// No post use session and keep everything internal
 class FileSessionMiddleware
 {
     private $identifier = "_files-session";

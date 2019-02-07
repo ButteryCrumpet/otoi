@@ -9,7 +9,7 @@ use Otoi\Loaders\FormLoader;
 use Otoi\Loaders\MailConfigLoader;
 use Otoi\Parsers\ArrayMailConfigParser;
 use Otoi\Parsers\StringValidationParser;
-use Otoi\Middleware\FormMiddleware;
+use Otoi\Middleware\RequestValidation;
 use Otoi\Strategies\PHPFileStrategy;
 use Otoi\Parsers\ArrayFieldParser;
 use SuperSimpleFramework\AppContainer;
@@ -58,7 +58,7 @@ class OtoiContainer extends AppContainer
         });
 
         $this->register(ValidationInterface::class, function ($c) {
-            return new Validation(
+            return new Validator(
                 $c->get("validation-factory")
             );
         });

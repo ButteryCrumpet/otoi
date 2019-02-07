@@ -8,12 +8,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+// Takes an error handler and returns whatever that does after passing error
 class ErrorHandlerMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
-            $response = $handler->handle($request);
+            return $handler->handle($request);
         } catch (\Exception $e) {
             $body = sprintf(
                 $this->format(),
@@ -26,7 +27,6 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
             );
             return new Response(500, [], $body);
         }
-        return $response;
     }
 
     private function render_file($filename, $lineNo)

@@ -67,7 +67,7 @@ class ArrayMailConfigParser implements ParserInterface
             );
         }
 
-        foreach (self::$necessary as $key) {
+        foreach (static::$necessary as $key) {
             if (!isset($array[$key])) {
                 throw new \DomainException("Input must have key of $key");
             }
