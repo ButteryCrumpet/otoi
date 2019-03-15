@@ -56,7 +56,7 @@ class ConditionCheck
         if (!isset($fields[$exploded[0]])) {
             return false;
         }
-        $value = $fields[$exploded[0]]->getValue();
+        $value = $fields[$exploded[0]];
         $result = $value === $exploded[1];
         return $result;
     }
@@ -67,7 +67,7 @@ class ConditionCheck
         if (!isset($fields[$exploded[0]])) {
             return false;
         }
-        $value = $fields[$exploded[0]]->getValue();
+        $value = $fields[$exploded[0]];
         if (!is_array($value)) {
             return false;
         }

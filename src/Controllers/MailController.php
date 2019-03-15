@@ -2,67 +2,56 @@
 
 namespace Otoi\Controllers;
 
-use GuzzleHttp\Psr7\Response;
 use Otoi\ConditionCheck;
 use Otoi\Config;
 use Otoi\FormBox;
-use Otoi\Interfaces\FormLoaderInterface;
-use Otoi\Interfaces\MailConfigLoaderInterface;
-use Otoi\Interfaces\SessionInterface;
-use Otoi\Interfaces\TemplateInterface;
-use Otoi\Interfaces\ValidationInterface;
+use Otoi\Repositories\FormRepository;
+use Otoi\Repositories\MailConfigRepository;
+use Otoi\Sessions\SessionInterface;
+use Otoi\Templates\TemplateInterface;
 use Otoi\Mailer;
-use Otoi\Entities\Form;
-use Otoi\Entities\MailConfig;
 use Otoi\StringStore;
-use SuperSimpleFramework\Interfaces\RequestAwareInterface;
-use SuperSimpleFramework\Traits\RequestAware;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-class MailController implements RequestAwareInterface
+class MailController
 {
-    use RequestAware;
 
-    private $formBox;
+    private $formRepository;
     private $templates;
     private $config;
     private $mailConfigLoader;
-    private $form;
     private $placeholderStore;
     private $conditionChecker;
     private $session;
 
     public function __construct(
         TemplateInterface $templates,
-        FormBox $formBox,
         Config $config,
-        MailConfigLoaderInterface $mailConfigLoader,
+        FormRepository $formRepository,
+        MailConfigRepository $mailConfigLoader,
         SessionInterface $session,
         StringStore $placeholderStore
     ) {
         $this->templates = $templates;
-        $this->formBox = $formBox;
         $this->config = $config;
+        $this->formRepository = $formRepository;
         $this->mailConfigLoader = $mailConfigLoader;
         $this->session = $session;
         $this->placeholderStore = $placeholderStore;
         $this->conditionChecker = new ConditionCheck();
     }
 
-    public function mail($formName = "")
+    public function mail(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $formName = empty($formName) ? "default" : $formName;
-        $form = $this->formBox->get();
-        if (!$form->isValid()) {
-            $resp = new Response(303);
-            return $resp->withHeader("Location", $this->buildActionUrl($formName, "?errors"));
-        }
-
+        $formName = isset($args["form"]) ? $args["form"] : "default";
         $configs = $this->mailConfigLoader->load($formName);
 
-        foreach ($form as $field) {
-            $val = $field->getValue();
+        $data = (array)$request->getParsedBody();
+
+        foreach ($data as $name => $val) {
             if (is_string($val)) {
-                $this->placeholderStore[$field->getName()] = $val;
+                $this->placeholderStore[$name] = $val;
             }
         }
 
@@ -74,22 +63,24 @@ class MailController implements RequestAwareInterface
                 $default[] = $config;
                 continue;
             }
-            if ($this->conditionChecker->check($config->getCondition(), $form)) {
-                $sent = $sent || $mailer->send($config, $form);
+            if ($this->conditionChecker->check($config->getCondition(), $data)) {
+                $sent = $sent || $mailer->send($config, $data);
             }
         }
         if (!$sent) {
             foreach ($default as $config) {
-                $mailer->send($config, $form);
+                $mailer->send($config, $data);
             }
         }
-        $response = new Response(303);
+
         $this->session->condemn();
         $url =  $this->buildActionUrl("default", "thanks") . "?$formName";
-        return $response->withHeader("Location", $url);
+        return $response
+            ->withStatus(303)
+            ->withHeader("Location", $url);
     }
 
-    private function buildActionUrl($formName, $action)
+    private function buildActionUrl($formName, $action = "")
     {
         $action = $formName !== "default" ? "/$formName/$action" : "/$action";
         return $this->config["base-url"] . $action;

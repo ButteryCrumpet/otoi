@@ -2,69 +2,86 @@
 
 namespace Otoi\Controllers;
 
-use GuzzleHttp\Psr7\Response;
 use Otoi\Config;
-use Otoi\FormBox;
-use Otoi\Interfaces\TemplateInterface;
-use SuperSimpleFramework\Interfaces\RequestAwareInterface;
-use SuperSimpleFramework\Traits\RequestAware;
+use Otoi\Repositories\FormRepository;
+use Otoi\Sessions\SessionInterface;
+use Otoi\Templates\TemplateInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\NotFoundException;
 
-class FormController implements RequestAwareInterface
+class FormController
 {
-    use RequestAware;
-
     private $templates;
-    private $formBox;
+    private $session;
     private $config;
+    private $formRepo;
 
     public function __construct(
         TemplateInterface $templates,
-        FormBox $formBox,
+        SessionInterface $session,
+        FormRepository $formRepository,
         Config $config
     ) {
         $this->templates = $templates;
-        $this->formBox = $formBox;
+        $this->session = $session;
+        $this->formRepo = $formRepository;
         $this->config = $config;
     }
 
-    public function index($formName = "")
+    public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $formName = empty($formName) ? "default" : $formName;
-        $form = $this->formBox->get();
-        $params = $this->request->getQueryParams();
-        $displayErrors = isset($params["errors"]);
-        $body = $this->templates->render("$formName/index.twig.html", [
-            "action" => $this->buildActionUrl($formName, "confirm"),
-            "form" => $form,
-            "displayErrors" => $displayErrors
-        ]);
-        return new Response(200, [], $body);
-    }
+        $formName = isset($args["form"]) ? $args["form"] : "default";
+        $form = $this->formRepo->load($formName);
 
-    public function confirm($formName = "default")
-    {
-        $formName = empty($formName) ? "default" : $formName;
-        $form = $this->formBox->get();
-        if (!$form->isValid()) {
-            $resp = new Response(303);
-            $url = $this->buildActionUrl($formName, "?errors");
-            return $resp->withHeader("Location", $url);
+        if (is_null($form)) {
+            throw new NotFoundException($request, $response);
         }
-        $body = $this->templates->render("$formName/confirm.twig.html", [
-            "action" => $this->buildActionUrl($formName, "mail"),
-            "form" => $form
+
+        $body = $this->templates->render($form->getTemplates()->getIndex(), [
+            "action" => $this->buildActionUrl($formName, "confirm"),
+            "data" => $request->getParsedBody(),
+            "errors" => $this->session->getFlash("errors", [])
         ]);
-        return new Response(200, [], $body);
+
+        $response->getBody()->write($body);
+        return $response;
     }
 
-    public function thanks($formName = "default")
+    public function confirm(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $formName = empty($formName) ? "default" : $formName;
-        $body = $this->templates->render("$formName/thanks.twig.html");
-        return new Response(200, [], $body);
+        $formName = isset($args["form"]) ? $args["form"] : "default";
+        $form = $this->formRepo->load($formName);
+
+        if (is_null($form)) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $body = $this->templates->render($form->getTemplates()->getConfirm(), [
+            "action" => $this->buildActionUrl($formName, "mail"),
+            "data" => $request->getParsedBody()
+        ]);
+
+        $response->getBody()->write($body);
+        return $response;
     }
 
-    private function buildActionUrl($formName, $action)
+    public function thanks(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $formName = isset($args["form"]) ? $args["form"] : "default";
+        $form = $this->formRepo->load($formName);
+
+        if (is_null($form)) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $response
+            ->getBody()
+            ->write($this->templates->render($form->getTemplates()->getFinal()));
+        return $response;
+    }
+
+    private function buildActionUrl($formName, $action = "")
     {
         $action = $formName !== "default" ? "/$formName/$action" : "/$action";
         return $this->config["base-url"] . $action;

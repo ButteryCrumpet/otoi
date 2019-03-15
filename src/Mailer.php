@@ -2,7 +2,7 @@
 
 namespace Otoi;
 
-use Otoi\Interfaces\TemplateInterface;
+use Otoi\Templates\TemplateInterface;
 use Otoi\Entities\MailConfig;
 use PHPMailer\PHPMailer\PHPMailer;
 

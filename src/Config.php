@@ -35,7 +35,7 @@ class Config implements \ArrayAccess
         $config = $this->$extension($file);
 
         if (!is_array($config)) {
-            throw new \InvalidArgumentException("Config must be an array");
+            throw new \InvalidArgumentException(_("Config must be an array"));
         }
 
         foreach ($config as $key => $val) {

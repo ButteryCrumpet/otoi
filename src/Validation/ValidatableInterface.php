@@ -5,7 +5,7 @@ namespace Otoi\Validation;
 
 interface ValidatableInterface
 {
-    public function data(): array;
+    public function data();
 
-    public function rules(): array;
+    public function rules();
 }

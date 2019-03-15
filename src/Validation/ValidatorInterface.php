@@ -4,5 +4,10 @@ namespace Otoi\Validation;
 
 interface ValidatorInterface
 {
-    public function validate(ValidatableInterface $data): ValidationResultInterface;
+    /**
+     * @param array $rules
+     * @param array $data
+     * @return ValidationResultInterface
+     */
+    public function validate($rules, $data);
 }

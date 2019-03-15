@@ -4,7 +4,6 @@ namespace Otoi\Parsers;
 
 use SuperSimpleValidation\Logic\LogicNot;
 use SuperSimpleValidation\Logic\LogicOr;
-use SuperSimpleValidation\RuleInterface;
 use SuperSimpleValidation\Rules\Required;
 use SuperSimpleValidation\Validator;
 
@@ -17,7 +16,7 @@ class StringValidationParser implements ParserInterface
         $this->ruleMap = $ruleMap;
     }
 
-    public function parse($config): RuleInterface
+    public function parse($config)
     {
         if (!is_string($config)) {
             throw new \InvalidArgumentException(sprintf(

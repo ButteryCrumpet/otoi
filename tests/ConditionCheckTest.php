@@ -24,17 +24,11 @@ class ConditionCheckTest extends TestCase
     {
         $equals = "hi==ho";
         $member = "hi[x]ho";
-        $field1 = $this->createMock(\Otoi\Models\Field::class);
-        $field1->method("getValue")->willReturn("ho");
-        $field2 = $this->createMock(\Otoi\Models\Field::class);
-        $field2->method("getValue")->willReturn(["ho"]);
-        $field3 = $this->createMock(\Otoi\Models\Field::class);
-        $field3->method("getValue")->willReturn("nope");
 
         $checker = new ConditionCheck();
-        $this->assertTrue($checker->check($equals, ["hi" => $field1]), "equals true");
-        $this->assertTrue($checker->check($member, ["hi" => $field2]), "member true");
-        $this->assertFalse($checker->check($equals, ["hi" => $field3]), "equals false");
-        $this->assertFalse($checker->check($member, ["hi" => $field3]), "equals true");
+        $this->assertTrue($checker->check($equals, ["hi" => "ho"]), "equals true");
+        $this->assertTrue($checker->check($member, ["hi" => ["ho"]]), "member true");
+        $this->assertFalse($checker->check($equals, ["hi" => "nope"]), "equals false");
+        $this->assertFalse($checker->check($member, ["hi" => "nope"]), "equals true");
     }
 }

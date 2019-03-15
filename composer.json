@@ -22,7 +22,6 @@
         "butterycrumpet/supersimple-validation": "*",
         "butterycrumpet/supersimplecache": "*",
         "phpmailer/phpmailer": "^6.0",
-        "butterycrumpet/supersimple-framework": "*",
-        "twig/twig": "^2.5"
+        "slim/slim": "^3.0"
     }
 }

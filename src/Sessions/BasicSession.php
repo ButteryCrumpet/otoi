@@ -7,7 +7,7 @@ class BasicSession implements SessionInterface
 {
     private $condemned = false;
 
-    public function start($args = []): bool
+    public function start($args = [])
     {
         if (\headers_sent()) {
             return false;
@@ -34,18 +34,54 @@ class BasicSession implements SessionInterface
         $_SESSION[$key] = $value;
     }
 
+    public function forget($key)
+    {
+        $_SESSION[$key] = null;
+    }
+
     public function condemn()
     {
         $this->condemned = true;
     }
 
-    public function isCondemned(): bool
+    public function condemned()
     {
         return $this->condemned;
     }
 
-    public function forceDestroy(): bool
+    public function forceDestroy()
     {
         return \session_destroy();
+    }
+
+    public function flash($key, $value)
+    {
+        $fd = $this->get("_flash.new", []);
+        $fd[$key] = $value;
+        $this->set("_flash.new", $fd);
+    }
+
+    public function getFlash($key = null, $default = null)
+    {
+        $data = $this->get("_flash.old", $default);
+
+        if (is_null($key)) {
+            return $data;
+        }
+
+        return isset($data[$key]) ? $data[$key] : $default;
+
+    }
+
+    public function ageFlash()
+    {
+        $fd = $this->get("_flash.new", []);
+        $this->forget("_flash.new");
+        $this->set("_flash.old", $fd);
+    }
+
+    public function removeFlash()
+    {
+        $this->forget("_flash.old");
     }
 }

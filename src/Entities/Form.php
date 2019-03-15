@@ -4,11 +4,29 @@ namespace Otoi\Entities;
 
 class Form implements \ArrayAccess, \Iterator
 {
+    /**
+     * @var string
+     */
     private $name;
-    private $fields = array();
+    /**
+     * @var array
+     */
+    private $rules = array();
+    /**
+     * @var FormTemplates
+     */
     private $templates;
+    /**
+     * @var null
+     */
     private $finalLocation;
 
+    /**
+     * Form constructor.
+     * @param string $name
+     * @param FormTemplates $templates
+     * @param null $finalLocation
+     */
     public function __construct($name, FormTemplates $templates, $finalLocation = null)
     {
         $this->name = $name;
@@ -16,72 +34,84 @@ class Form implements \ArrayAccess, \Iterator
         $this->finalLocation = $finalLocation;
     }
 
-    public function isValid()
-    {
-        $valid = true;
-        foreach ($this->fields as $field) {
-            $valid = $valid && $field->isValid();
-        }
-        return $valid;
-    }
-
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * @return array
+     */
+    public function getRules()
+    {
+        return $this->rules;
+    }
+
+    /**
+     * @return FormTemplates
+     */
+    public function getTemplates()
+    {
+        return $this->templates;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFinal()
+    {
+        return $this->finalLocation;
+    }
+
     public function current()
     {
-        return \current($this->fields);
+        return \current($this->rules);
     }
 
     public function next()
     {
-        return \next($this->fields);
+        return \next($this->rules);
     }
 
     public function key()
     {
-        return \key($this->fields);
+        return \key($this->rules);
     }
 
     public function valid()
     {
-        return key($this->fields) !== null;
+        return key($this->rules) !== null;
     }
 
     public function rewind()
     {
-        return reset($this->fields);
+        return reset($this->rules);
     }
 
     public function offsetExists($offset)
     {
-        return isset($this->fields[$offset]);
+        return isset($this->rules[$offset]);
     }
 
     public function offsetGet($offset)
     {
-        return $this->offsetExists($offset) ? $this->fields[$offset] : null;
+        return $this->offsetExists($offset) ? $this->rules[$offset] : null;
     }
 
     public function offsetSet($offset, $value)
     {
-        if (!($value instanceof Field)) {
-            throw new \InvalidArgumentException(
-                "Value must be an instance of " . Field::class
-            );
-        }
-
         if (is_null($offset)) {
-            $offset = $value->getName();
+            throw new \InvalidArgumentException("Key must be a valid string");
         }
 
-        $this->fields[$offset] = $value;
+        $this->rules[$offset] = $value;
     }
 
     public function offsetUnset($offset)
     {
-        unset($this->fields[$offset]);
+        unset($this->rules[$offset]);
     }
 }

@@ -9,29 +9,29 @@ class ValidationResult implements ValidationResultInterface
     private $errors;
     private $validated;
 
-    public function __construct($success, array $errors = [], array $validated = [])
+    public function __construct($success, $errors = [], $validated = [])
     {
         $this->success = $success;
         $this->errors = $errors;
         $this->validated = $validated;
     }
 
-    public function passed(): bool
+    public function passed()
     {
         return $this->success;
     }
 
-    public function failed(): bool
+    public function failed()
     {
         return !$this->success;
     }
 
-    public function errors(): array
+    public function errors()
     {
         return $this->errors;
     }
 
-    public function validated(): array
+    public function validated()
     {
         return $this->validated;
     }

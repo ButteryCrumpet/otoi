@@ -17,24 +17,21 @@ class ValidatorTest extends TestCase
 
     public function testValidate()
     {
-        $validateable = $this->createMock(\Otoi\Validation\ValidatableInterface::class);
-        $validateable->method("data")
-            ->willReturn([
-                "name" => [
-                    "first" => "firstname",
-                    "last" => "lastname"
-                ],
-                "email" => "email@test.com",
-                "superfluous" => "meh"
-            ]);
-        $validateable->method("rules")
-            ->willReturn([
-                "name" => [
-                    "first" => "required",
-                    "last" => "required"
-                ],
-                "email" => "email"
-            ]);
+        $data = [
+            "name" => [
+                "first" => "firstname",
+                "last" => "lastname"
+            ],
+            "email" => "email@test.com",
+            "superfluous" => "meh"
+        ];
+
+
+        $rules =[
+            "name.first" => "required",
+            "name.last" => "required",
+            "email" => "email"
+        ];
 
         $validator = $this->createMock(\SuperSimpleValidation\RuleInterface::class);
         $validator->method("validate")
@@ -48,10 +45,11 @@ class ValidatorTest extends TestCase
 
         $instance = new Validator($parser);
 
-        $result = $instance->validate($validateable);
+        $result = $instance->validate($rules, $data);
         $this->assertTrue($result->passed(), "returns passing result");
 
-        $result2 = $instance->validate($validateable);
+        $result2 = $instance->validate($rules, $data);
+
         $this->assertTrue($result2->failed(), "returns failing result");
         $this->assertEquals(
             ["email" => ["email"], "name" => ["last" => ["required"]]],

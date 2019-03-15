@@ -2,19 +2,16 @@
 
 namespace Otoi\Middleware;
 
-use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
 // Takes an error handler and returns whatever that does after passing error
-class ErrorHandlerMiddleware implements MiddlewareInterface
+class ErrorHandlerMiddleware
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(ServerRequestInterface $request, ResponseInterface $response, $next)
     {
         try {
-            return $handler->handle($request);
+            return $next($request, $response);
         } catch (\Exception $e) {
             $body = sprintf(
                 $this->format(),
@@ -25,7 +22,8 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
                 $this->render_file($e->getFile(), $e->getLine()),
                 $this->render_trace($e)
             );
-            return new Response(500, [], $body);
+            $response->getBody()->write($body);
+            return $response->withStatus(500);
         }
     }
 

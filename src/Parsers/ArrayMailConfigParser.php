@@ -2,8 +2,6 @@
 
 namespace Otoi\Parsers;
 
-
-use Otoi\Interfaces\ParserInterface;
 use Otoi\Entities\EmailAddress;
 use Otoi\Entities\MailConfig;
 use Otoi\StringStore;
@@ -19,7 +17,7 @@ class ArrayMailConfigParser implements ParserInterface
         $this->store = $store;
     }
 
-    public function parse($input): MailConfig
+    public function parse($input)
     {
         $this->checkSchema($input);
 

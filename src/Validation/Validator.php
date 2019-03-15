@@ -2,32 +2,39 @@
 
 namespace Otoi\Validation;
 
+use Otoi\Collections\FlatHashMap;
 use Otoi\Parsers\StringValidationParser;
 // Should be moved to validation package?
 class Validator implements ValidatorInterface
 {
     private $factory;
 
+    /**
+     * Validator constructor.
+     * @param StringValidationParser $factory
+     */
     public function __construct(StringValidationParser $factory)
     {
         $this->factory = $factory;
     }
 
-    public function validate(ValidatableInterface $validatable): ValidationResultInterface
+    /**
+     * @inheritdoc
+     */
+    public function validate($rules, $data)
     {
 
-        if (empty($validatable->rules())) {
-            return new ValidationResult(true, [], $validatable->data());
+        if (empty($rules)) {
+            return new ValidationResult(true, [], $data);
         }
 
         $errors = [];
         $validated = [];
 
-        $data = $this->flatten($validatable->data());
-        $rules = $this->flatten($validatable->rules());
+        $data = FlatHashMap::fromArray($data);
 
         foreach ($rules as $key => $rule) {
-            $value = isset($data[$key]) ? $data[$key] : null;
+            $value = isset($data[$key]) ? $data[$key] : "";
             $validator = $this->factory->parse($rule);
 
             if ($validator->validate($value)) {
@@ -40,21 +47,8 @@ class Validator implements ValidatorInterface
         return new ValidationResult(
             empty($errors),
             $errors,
-            $validatable->data()
+            $validated
         );
-    }
-
-    private function flatten($array, $prefix = '')
-    {
-        $result = [];
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $result = $result + $this->flatten($value, $prefix . $key . ".");
-            } else {
-                $result[$prefix . $key] = $value;
-            }
-        }
-        return $result;
     }
 
     public static function set(&$array, $key, $value)

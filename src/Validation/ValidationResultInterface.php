@@ -5,11 +5,11 @@ namespace Otoi\Validation;
 
 interface ValidationResultInterface
 {
-    public function passed(): bool;
+    public function passed();
 
-    public function failed(): bool;
+    public function failed();
 
-    public function errors(): array;
+    public function errors();
 
-    public function validated(): array;
+    public function validated();
 }
