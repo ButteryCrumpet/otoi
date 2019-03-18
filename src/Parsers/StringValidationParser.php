@@ -19,7 +19,7 @@ class StringValidationParser implements ParserInterface
     public function parse($config)
     {
         if (!is_string($config)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new ParseException(sprintf(
                 "Config must be a string, %s was given",
                 gettype($config)
             ));
@@ -52,7 +52,7 @@ class StringValidationParser implements ParserInterface
         $ruleName = $exploded[0];
 
         if (!array_key_exists($ruleName, $this->ruleMap)) {
-            throw new \InvalidArgumentException(
+            throw new ParseException(
                 sprintf("%s is not a valid rule", $ruleName)
             );
         }

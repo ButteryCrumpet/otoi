@@ -59,7 +59,7 @@ class Form implements \ArrayAccess, \Iterator
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getFinal()
     {

@@ -2,87 +2,54 @@
 
 namespace Otoi\Controllers;
 
-use Otoi\ConditionCheck;
-use Otoi\Config;
-use Otoi\FormBox;
+use Otoi\Mail\DriverInterface;
 use Otoi\Repositories\FormRepository;
-use Otoi\Repositories\MailConfigRepository;
+use Otoi\Repositories\MailRepository;
 use Otoi\Sessions\SessionInterface;
-use Otoi\Templates\TemplateInterface;
-use Otoi\Mailer;
-use Otoi\StringStore;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class MailController
 {
 
-    private $formRepository;
-    private $templates;
-    private $config;
-    private $mailConfigLoader;
-    private $placeholderStore;
-    private $conditionChecker;
+    private $formRepo;
+    private $mailer;
+    private $mailRepo;
     private $session;
 
     public function __construct(
-        TemplateInterface $templates,
-        Config $config,
+        DriverInterface $mailer,
         FormRepository $formRepository,
-        MailConfigRepository $mailConfigLoader,
-        SessionInterface $session,
-        StringStore $placeholderStore
+        MailRepository $mailConfigLoader,
+        SessionInterface $session
     ) {
-        $this->templates = $templates;
-        $this->config = $config;
-        $this->formRepository = $formRepository;
-        $this->mailConfigLoader = $mailConfigLoader;
+        $this->mailer = $mailer;
+        $this->formRepo = $formRepository;
+        $this->mailRepo = $mailConfigLoader;
         $this->session = $session;
-        $this->placeholderStore = $placeholderStore;
-        $this->conditionChecker = new ConditionCheck();
     }
 
     public function mail(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $formName = isset($args["form"]) ? $args["form"] : "default";
-        $configs = $this->mailConfigLoader->load($formName);
+        $form = $this->formRepo->load($formName);
+        $mails = $this->mailRepo->load($formName);
 
         $data = (array)$request->getParsedBody();
 
-        foreach ($data as $name => $val) {
-            if (is_string($val)) {
-                $this->placeholderStore[$name] = $val;
-            }
-        }
-
-        $mailer = new Mailer($this->templates);
-        $default = [];
-        $sent = false;
-        foreach ($configs as $config) {
-            if (is_null($config->getCondition())) {
-                $default[] = $config;
-                continue;
-            }
-            if ($this->conditionChecker->check($config->getCondition(), $data)) {
-                $sent = $sent || $mailer->send($config, $data);
-            }
-        }
-        if (!$sent) {
-            foreach ($default as $config) {
-                $mailer->send($config, $data);
+        foreach ($mails as $mail) {
+            try {
+                $mail->send($data, $this->mailer);
+            } catch (\Exception $e) {
+                // log
+                throw $e;
             }
         }
 
         $this->session->condemn();
-        $url =  $this->buildActionUrl("default", "thanks") . "?$formName";
+
         return $response
             ->withStatus(303)
-            ->withHeader("Location", $url);
-    }
-
-    private function buildActionUrl($formName, $action = "")
-    {
-        $action = $formName !== "default" ? "/$formName/$action" : "/$action";
-        return $this->config["base-url"] . $action;
+            ->withHeader("Location", $form->getFinal());
     }
 }

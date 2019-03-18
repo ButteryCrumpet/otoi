@@ -23,7 +23,7 @@ interface SessionInterface
 
     public function ageFlash();
 
-    public function removeFlash();
+    //public function removeFlash();
 
     public function getFlash($key = null, $default = null);
 }

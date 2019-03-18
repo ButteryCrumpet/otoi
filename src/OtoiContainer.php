@@ -2,19 +2,23 @@
 
 namespace Otoi;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Otoi\Controllers\FormController;
 use Otoi\Controllers\MailController;
 use Otoi\Csrf\CsrfInterface;
 use Otoi\Csrf\CsrfRenderer;
 use Otoi\Csrf\SessionCsrf;
+use Otoi\Mail\DriverInterface as MailDriver;
+use Otoi\Mail\Drivers\PHPMailerDriver;
 use Otoi\Middleware\CsrfMiddleware;
 use Otoi\Middleware\FlashMiddleware;
 use Otoi\Middleware\SessionMiddleware;
 use Otoi\Sessions\BasicSession;
 use Otoi\Sessions\SessionInterface;
 use Otoi\Repositories\FormRepository;
-use Otoi\Repositories\MailConfigRepository;
-use Otoi\Parsers\ArrayMailConfigParser;
+use Otoi\Repositories\MailRepository;
+use Otoi\Parsers\ArrayMailParser;
 use Otoi\Parsers\StringValidationParser;
 use Otoi\Middleware\RequestValidation;
 use Otoi\Drivers\PHPFileDriver;
@@ -22,6 +26,7 @@ use Otoi\Templates\PHPTemplates;
 use Otoi\Templates\TemplateInterface;
 use Otoi\Validation\Validator;
 use Otoi\Validation\ValidatorInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Container;
 use SuperSimpleValidation\Rules;
 
@@ -46,12 +51,10 @@ class OtoiContainer extends Container
 
         $this[MailController::class] = function ($c) {
             return new MailController(
-                $c->get(TemplateInterface::class),
-                $c->get(Config::class),
+                $c->get(MailDriver::class),
                 $c->get(FormRepository::class),
-                $c->get(MailConfigRepository::class),
-                $c->get(SessionInterface::class),
-                $c->get(StringStore::class)
+                $c->get(MailRepository::class),
+                $c->get(SessionInterface::class)
             );
         };
 
@@ -79,7 +82,7 @@ class OtoiContainer extends Container
 
         // Validation --
 
-        $this["rule-map"] = function () {
+        $this["rules"] = function () {
             return [
                 'required' => Rules\Required::class,
                 'type' => Rules\Type::class,
@@ -90,15 +93,15 @@ class OtoiContainer extends Container
                 'email' => Rules\Email::class,
                 'file-ext' => Rules\FileExtension::class,
                 'file-sig' => Rules\FileSignature::class,
-                'jchars' => CustomRules\JapaneseCharacters::class,
-                'pdf' => CustomRules\PdfRule::class,
-                'phone' => CustomRules\PhoneNumberRule::class
+                'jchars' => Validation\CustomRules\JapaneseCharacters::class,
+                'pdf' => Validation\CustomRules\PdfRule::class,
+                'phone' => Validation\CustomRules\PhoneNumberRule::class
             ];
         };
 
         $this["validation-factory"] = function ($c) {
             return new StringValidationParser(
-                $c->get('rule-map')
+                $c->get('rules')
             );
         };
 
@@ -130,8 +133,8 @@ class OtoiContainer extends Container
            );
         };
 
-        $this[MailConfigRepository::class] = function ($c) {
-            return new MailConfigRepository(
+        $this[MailRepository::class] = function ($c) {
+            return new MailRepository(
                 $c->get("mail-repo-driver"),
                 $c->get("mail-config-parser")
             );
@@ -146,10 +149,27 @@ class OtoiContainer extends Container
         };
 
         $this["mail-config-parser"] = function ($c) {
-            return new ArrayMailConfigParser($c->get(StringStore::class));
+            return new ArrayMailParser(
+                $c->get(TemplateInterface::class),
+                new ConditionCheck() // Do with validation?
+            );
+        };
+
+        $this[MailDriver::class] = function ($c) {
+            return new PHPMailerDriver();
         };
 
         // -- Repositories
+
+        $this["errorHandler"] = function ($c) {
+            return new ErrorHandler($c->get(LoggerInterface::class), 1);
+        };
+
+        $this[LoggerInterface::class] = function ($c) {
+            return new Logger("file", [
+                new StreamHandler($c->get("log-dir") . "/all.log")
+            ]);
+        };
 
         $this[CsrfMiddleware::class] = function ($c) {
             return new CsrfMiddleware($c->get(CsrfInterface::class));
@@ -161,10 +181,6 @@ class OtoiContainer extends Container
 
         $this[SessionInterface::class] = function($c) {
             return new BasicSession();
-        };
-
-        $this[StringStore::class] = function () {
-            return new StringStore();
         };
     }
 }

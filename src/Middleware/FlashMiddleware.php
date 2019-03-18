@@ -20,7 +20,6 @@ class FlashMiddleware
     {
         $this->session->ageFlash();
         $response = $next($request, $response);
-        $this->session->removeFlash();
 
         return $response;
     }

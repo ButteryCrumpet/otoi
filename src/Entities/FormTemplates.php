@@ -16,22 +16,16 @@ class FormTemplates
      * @var string
      */
     private $confirm;
-    /**
-     * @var string|null
-     */
-    private $final;
 
     /**
      * FormTemplates constructor.
      * @param string $index
      * @param string $confirm
-     * @param string|null $final
      */
-    public function __construct($index, $confirm, $final = null)
+    public function __construct($index, $confirm)
     {
         $this->index = $index;
         $this->confirm = $confirm;
-        $this->final = $final;
     }
 
     /**
@@ -48,13 +42,5 @@ class FormTemplates
     public function getConfirm()
     {
         return $this->confirm;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getFinal()
-    {
-        return $this->final;
     }
 }

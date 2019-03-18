@@ -1,6 +1,6 @@
 <?php
 
-namespace Otoi\CustomRules;
+namespace Otoi\Validation\CustomRules;
 
 use SuperSimpleValidation\RuleInterface;
 use SuperSimpleValidation\Rules\Regex;

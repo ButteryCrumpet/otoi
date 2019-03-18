@@ -18,7 +18,7 @@ class PHPTemplates implements TemplateInterface
     {
         $file = $this->directory . "/" . $this->normalizePath($name);
         if (!file_exists($file)) {
-            throw new \RuntimeException(sprintf(_("Template with name %s does not exist"), $name));
+            throw new \RuntimeException(sprintf("Template with name %s does not exist", $name));
         }
         ob_start();
         extract($args);
@@ -48,7 +48,7 @@ class PHPTemplates implements TemplateInterface
         }
 
         if (!$do->isReadable()) {
-            throw new \RuntimeException(sprintf(_("Directory $realPath must be readable"), $realPath));
+            throw new \RuntimeException(sprintf(_("Directory %s must be readable"), $realPath));
         }
 
         return $realPath;

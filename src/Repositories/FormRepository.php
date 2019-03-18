@@ -4,7 +4,6 @@ namespace Otoi\Repositories;
 
 
 use Otoi\Entities\FormTemplates;
-use Otoi\Parsers\ParserInterface;
 use Otoi\Drivers\DriverInterface;
 use Otoi\Entities\Form;
 
@@ -26,11 +25,14 @@ class FormRepository implements RepositoryInterface
 
         $form = new Form(
             $name,
-            $this->getTemplates($data["templates"])
+            $this->getTemplates($data["templates"]),
+            $data["final-location"]
         );
+
         foreach ($data["validation"] as $key => $validation) {
             $form[$key] = $validation;
         }
+
         return $form;
     }
 
@@ -68,8 +70,8 @@ class FormRepository implements RepositoryInterface
         if (!isset($data["templates"]["confirm"])) {
             throw new \RuntimeException("Form template config must contain confirm attribute");
         }
-        if (!isset($data["final-location"]) && !isset($data["templates"]["final"])) {
-            throw new \RuntimeException("Form config must contain either a final-location or a templates.final");
+        if (!isset($data["final-location"])) {
+            throw new \RuntimeException("Form config must contain a final-location");
         }
     }
 

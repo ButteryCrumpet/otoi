@@ -4,17 +4,11 @@ namespace Otoi;
 
 use Otoi\Controllers\FormController;
 use Otoi\Controllers\MailController;
-use Otoi\Csrf\InvalidCsrfException;
 use Otoi\Middleware\CsrfMiddleware;
 use Otoi\Middleware\RequestValidation;
-use Otoi\Middleware\ErrorHandlerMiddleware;
 use Otoi\Middleware\FlashMiddleware;
 use Otoi\Middleware\SessionMiddleware;
 use Otoi\Repositories\FormRepository;
-use Otoi\Validation\ValidationException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Slim\Handlers\Error;
 
 class Otoi
 {
@@ -22,21 +16,18 @@ class Otoi
     private $base;
     private $container;
 
-    public static function quickRun($base)
-    {
-        $app = new Otoi($base);
-        $app->run();
-    }
-
-    public function __construct($base, $configDir = null, $templateDir = null)
+    public function __construct($base, $configDir = null, $templateDir = null, $logDir = null)
     {
         $configDir = is_null($configDir) ? dirname(__FILE__) . "/config" : $configDir;
         $templateDir = is_null($templateDir) ? dirname(__FILE__) . '/templates' : $templateDir;
+        $logDir = is_null($logDir) ? dirname(__FILE__) . "/logs" : $logDir;
         $this->base = rtrim($base, "/");
 
         $this->container = new OtoiContainer();
+        $this->container->get('settings')['displayErrorDetails'] = true;
         $this->container["config-dir"] = $configDir;
         $this->container["template-dir"] = $templateDir;
+        $this->container["log-dir"] = $logDir;
 
         $config = new Config();
         $this->container[Config::class] = function () use ($config) {
@@ -50,7 +41,6 @@ class Otoi
 
     public function run($silent = false)
     {
-        $this->errorHandler();
         $this->setRoutes();
         return $this->app->run($silent);
     }
@@ -78,30 +68,10 @@ class Otoi
             $group->post("/{form:$regex}/mail", MailController::class . ":mail");
             $group->get("/{form:$regex}/thanks", FormController::class . ":thanks");
         })
-            ->add(SessionMiddleware::class . ":process")
-            ->add(FlashMiddleware::class . ":process")
+            ->add(RequestValidation::class . ":process")
             ->add(CsrfMiddleware::class . ":process")
-            //->add(ErrorHandlerMiddleware::class . ":process")
-            ->add(RequestValidation::class . ":process");
-    }
-
-    private function errorHandler()
-    {
-        $this->container["errorHandler"] = function ($c) {
-            return function (ServerRequestInterface $req, ResponseInterface $resp, $e) use ($c) {
-                if ($e instanceof ValidationException || $e  instanceof InvalidCsrfException) {
-                    $params = $req->getServerParams();
-                    if (isset($params["HTTP_REFERER"])) {
-                        return $resp->withStatus(303)
-                            ->withHeader("Location", $params["HTTP_REFERER"]);
-                    }
-                    return $resp->withStatus(403);
-
-                }
-                $error = new Error($c->get('settings')['displayErrorDetails']);
-                return $error($req, $resp, $e);
-            };
-        };
+            ->add(FlashMiddleware::class . ":process")
+            ->add(SessionMiddleware::class . ":process");
     }
 
 }

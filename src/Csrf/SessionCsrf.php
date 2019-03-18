@@ -28,10 +28,13 @@ class SessionCsrf implements CsrfInterface
     {
         $id = $this->makeId();
         $token = $this->session->getFlash($this->makeId());
+
         if (is_null($token)) {
             return false;
         }
+
         $body = $request->getParsedBody();
+
         if (!isset($body[$id])) {
             return false;
         }
@@ -47,6 +50,6 @@ class SessionCsrf implements CsrfInterface
 
     private function makeId()
     {
-        return "_csrf.$this->salt";
+        return "_csrf_$this->salt";
     }
 }

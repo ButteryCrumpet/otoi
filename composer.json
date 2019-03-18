@@ -22,6 +22,8 @@
         "butterycrumpet/supersimple-validation": "*",
         "butterycrumpet/supersimplecache": "*",
         "phpmailer/phpmailer": "^6.0",
-        "slim/slim": "^3.0"
+        "slim/slim": "^3.0",
+        "psr/log": "^1.1",
+        "monolog/monolog": "^1.24"
     }
 }

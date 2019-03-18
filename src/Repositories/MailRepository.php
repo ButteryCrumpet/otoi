@@ -5,7 +5,7 @@ namespace Otoi\Repositories;
 use Otoi\Parsers\ParserInterface;
 use Otoi\Drivers\DriverInterface;
 
-class MailConfigRepository implements RepositoryInterface
+class MailRepository implements RepositoryInterface
 {
     private $strategy;
     private $parser;
@@ -16,6 +16,10 @@ class MailConfigRepository implements RepositoryInterface
         $this->parser = $configParser;
     }
 
+    /**
+     * @param $name
+     * @return \Otoi\Entities\Mail[]
+     */
     public function load($name)
     {
         $loaded = $this->strategy->single($name);

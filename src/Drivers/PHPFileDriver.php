@@ -27,6 +27,7 @@ class PHPFileDriver implements DriverInterface
         if (!$info->isFile() && !$info->isReadable()) {
             return null;
         }
+        // TODO: Throw if not expected type, for arg?
         return require $path;
     }
 

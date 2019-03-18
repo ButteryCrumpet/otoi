@@ -35,11 +35,9 @@ class RequestValidation
         }
 
         $result = $this->validator->validate($form->getRules(), $request->getParsedBody());
-
         if ($result->failed()) {
             $this->session->flash("errors", $result->errors());
-            throw (new ValidationException())
-                ->setErrors($result->errors());
+            throw new ValidationException($result->errors());
         }
 
         return $next($request->withParsedBody($result->validated()), $response);

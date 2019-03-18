@@ -26,7 +26,7 @@ class BasicSession implements SessionInterface
 
     public function get($key, $default = null)
     {
-        return $_SESSION[$key] ?? $default;
+        return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
     }
 
     public function set($key, $value)
@@ -77,11 +77,8 @@ class BasicSession implements SessionInterface
     {
         $fd = $this->get("_flash.new", []);
         $this->forget("_flash.new");
-        $this->set("_flash.old", $fd);
-    }
 
-    public function removeFlash()
-    {
-        $this->forget("_flash.old");
+        $this->set("_flash.old", $fd);
+        $this->forget("_flash.new");
     }
 }
