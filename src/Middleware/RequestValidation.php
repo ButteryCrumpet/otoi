@@ -4,7 +4,6 @@ namespace Otoi\Middleware;
 
 use Otoi\Repositories\FormRepository;
 use Otoi\Sessions\SessionInterface;
-use Otoi\Validation\ValidationException;
 use Otoi\Validation\ValidatorInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,7 +36,7 @@ class RequestValidation
         $result = $this->validator->validate($form->getRules(), $request->getParsedBody());
         if ($result->failed()) {
             $this->session->flash("errors", $result->errors());
-            throw new ValidationException($result->errors());
+            return $this->errorResponse($request, $response, $result->errors());
         }
 
         return $next($request->withParsedBody($result->validated()), $response);
@@ -64,6 +63,19 @@ class RequestValidation
         $args = $route->getArguments();
 
         return isset($args["form"]) ? $args["form"] : "default";
+    }
+
+    private function errorResponse(ServerRequestINterface $request, ResponseInterface $response, $errors)
+    {
+        $params = $request->getServerParams();
+        if (isset($params["HTTP_REFERER"])) {
+            $splitOnQuery = explode("?", $params["HTTP_REFERER"]);
+            return $response
+                ->withStatus(303)
+                ->withHeader("Location", $splitOnQuery[0]);
+        }
+
+        return $response->withStatus(400);
     }
 
 }

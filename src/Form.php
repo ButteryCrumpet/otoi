@@ -1,6 +1,6 @@
 <?php
 
-namespace Otoi\Entities;
+namespace Otoi;
 
 class Form implements \ArrayAccess, \Iterator
 {
@@ -13,9 +13,13 @@ class Form implements \ArrayAccess, \Iterator
      */
     private $rules = array();
     /**
-     * @var FormTemplates
+     * @var string
      */
-    private $templates;
+    private $templateIndex;
+    /**
+     * @var string
+     */
+    private $templateConfirm;
     /**
      * @var null
      */
@@ -24,13 +28,15 @@ class Form implements \ArrayAccess, \Iterator
     /**
      * Form constructor.
      * @param string $name
-     * @param FormTemplates $templates
-     * @param null $finalLocation
+     * @param string $templateIndex
+     * @param string $templateConfirm
+     * @param string $finalLocation
      */
-    public function __construct($name, FormTemplates $templates, $finalLocation = null)
+    public function __construct($name, $templateIndex, $templateConfirm, $finalLocation)
     {
         $this->name = $name;
-        $this->templates = $templates;
+        $this->templateIndex = $templateIndex;
+        $this->templateConfirm = $templateConfirm;
         $this->finalLocation = $finalLocation;
     }
 
@@ -51,11 +57,19 @@ class Form implements \ArrayAccess, \Iterator
     }
 
     /**
-     * @return FormTemplates
+     * @return string
      */
-    public function getTemplates()
+    public function getTemplateIndex()
     {
-        return $this->templates;
+        return $this->templateIndex;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTemplateConfirm()
+    {
+        return $this->templateConfirm;
     }
 
     /**

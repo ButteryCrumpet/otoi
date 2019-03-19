@@ -2,78 +2,52 @@
 
 namespace Otoi;
 
-use Otoi\Csrf\InvalidCsrfException;
-use Otoi\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 use Slim\Handlers\Error;
-use Slim\Http\Body;
 
-class ErrorHandler
+class ErrorHandler extends Error
 {
-    protected $debugLevel;
-    protected $logger;
+    private $debugLevel;
+    private $logger;
 
     public function __construct(LoggerInterface $logger, $debugLevel = 0)
     {
         $this->debugLevel = $debugLevel;
         $this->logger = $logger;
+        parent::__construct(($debugLevel > 0));
     }
 
-    public function __invoke(ServerRequestInterface $req, ResponseInterface $resp, $e)
+    public function __invoke(ServerRequestInterface $req, ResponseInterface $resp, \Exception $e)
     {
-        if ($resp->getBody()->isSeekable()) {
-            $resp->getBody()->rewind();
-        }
-
-        if ($e instanceof ValidationException || $e instanceof InvalidCsrfException) {
-
-            $params = $req->getServerParams();
-
-            $this->logger->info($e->getMessage());
-
-            if (isset($params["HTTP_REFERER"])) {
-                return $resp
-                    ->withStatus(303)
-                    ->withHeader("Location", $params["HTTP_REFERER"] );
-            }
-
-            $body = new Body(fopen('php://temp', 'r+'));
-            $body->write($this->jsonResponse($e));
-
-            return $resp
-                ->withStatus($e->getCode())
-                ->withBody($body);
-
-        }
-
-        $this->logger->critical($e->getMessage());
-        $error = new Error(true);
-        return $error($req, $resp, $e);
+        $this->logger->critical($e->getMessage(), $this->toDetailsArray($e));
+        return parent::__invoke($req, $resp, $e);
     }
 
-    protected function jsonResponse(\Exception $error)
-    {
-        $details = [
-            "code" => $error->getCode(),
-            "message" => $error->getMessage()
-        ];
 
+    protected function renderHtmlErrorMessage(\Exception $exception)
+    {
         if ($this->debugLevel > 0) {
-            $details["error"] = [
-                "file" => $error->getFile(),
-                "line" => $error->getLine(),
-                "type" => get_class($error)
-            ];
+            ob_start();
+            require __DIR__ . "/_internal/error.php";
+            return ob_get_clean();
         }
 
-        return json_encode($details);
+        $code = $exception->getCode() > 0 ? $exception->getCode() : 500;
+
+        return "<html><head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8'>".
+            "<body style='margin: 5vh 0 0 10vw'><h1>{$code}</h1><p>{$exception->getMessage()}</p>".
+            "</body></head></html>";
     }
 
-    protected function htmlResponse(\Exception $e)
+    private function toDetailsArray(\Exception $e)
     {
-        return "";
+        return [
+            "code" => $e->getCode(),
+            "file" => $e->getFile(),
+            "line" => $e->getLine(),
+            "type" => get_class($e)
+        ];
     }
 }

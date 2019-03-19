@@ -3,9 +3,8 @@
 namespace Otoi\Repositories;
 
 
-use Otoi\Entities\FormTemplates;
 use Otoi\Drivers\DriverInterface;
-use Otoi\Entities\Form;
+use Otoi\Form;
 
 class FormRepository implements RepositoryInterface
 {
@@ -25,7 +24,8 @@ class FormRepository implements RepositoryInterface
 
         $form = new Form(
             $name,
-            $this->getTemplates($data["templates"]),
+            $data["templates"]["index"],
+            $data["templates"]["confirm"],
             $data["final-location"]
         );
 
@@ -74,13 +74,4 @@ class FormRepository implements RepositoryInterface
             throw new \RuntimeException("Form config must contain a final-location");
         }
     }
-
-    private function getTemplates($templateData) {
-
-        return new FormTemplates(
-            $templateData["index"],
-            $templateData["confirm"]
-        );
-    }
-
 }

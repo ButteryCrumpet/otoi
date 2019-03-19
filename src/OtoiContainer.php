@@ -9,10 +9,14 @@ use Otoi\Controllers\MailController;
 use Otoi\Csrf\CsrfInterface;
 use Otoi\Csrf\CsrfRenderer;
 use Otoi\Csrf\SessionCsrf;
+use Otoi\Honeypot\Honeypot;
+use Otoi\Honeypot\HoneypotInterface;
 use Otoi\Mail\DriverInterface as MailDriver;
 use Otoi\Mail\Drivers\PHPMailerDriver;
 use Otoi\Middleware\CsrfMiddleware;
 use Otoi\Middleware\FlashMiddleware;
+use Otoi\Middleware\HoneypotMiddleware;
+use Otoi\Middleware\RequestLogMiddleware;
 use Otoi\Middleware\SessionMiddleware;
 use Otoi\Sessions\BasicSession;
 use Otoi\Sessions\SessionInterface;
@@ -36,8 +40,18 @@ class OtoiContainer extends Container
     {
         parent::__construct();
 
-        $this["debug"] = true;
+        // SETTINGS --
 
+        $this["config"] = [
+            "debug" => false,
+            "base-url" => "/",
+            "config-dir" => realpath("./config"),
+            "template-dir" => realpath("./templates"),
+            "log-dir" => realpath("./logs"),
+        ];
+
+
+        // -- SETTINGS
         // Controllers --
 
         $this[FormController::class] = function ($c) {
@@ -45,7 +59,7 @@ class OtoiContainer extends Container
                 $c->get(TemplateInterface::class),
                 $c->get(SessionInterface::class),
                 $c->get(FormRepository::class),
-                $c->get(Config::class)
+                $c->get("config")["base-url"]
             );
         };
 
@@ -54,7 +68,8 @@ class OtoiContainer extends Container
                 $c->get(MailDriver::class),
                 $c->get(FormRepository::class),
                 $c->get(MailRepository::class),
-                $c->get(SessionInterface::class)
+                $c->get(SessionInterface::class),
+                $c->get(LoggerInterface::class)
             );
         };
 
@@ -76,6 +91,22 @@ class OtoiContainer extends Container
                 $c->get(FormRepository::class),
                 $c->get(SessionInterface::class)
             );
+        };
+
+        $this[CsrfMiddleware::class] = function ($c) {
+            return new CsrfMiddleware($c->get(CsrfInterface::class));
+        };
+
+        $this[HoneypotMiddleware::class] = function ($c) {
+            return new HoneypotMiddleware($c->get(HoneypotInterface::class));
+        };
+
+        $this[RequestLogMiddleware::class] = function ($c) {
+            $file = $c->get("config")["log-dir"] . "/access.log";
+            return new RequestLogMiddleware(new Logger(
+                "access",
+                [new StreamHandler($file)]
+            ));
         };
 
         // -- Middleware
@@ -117,8 +148,11 @@ class OtoiContainer extends Container
 
         $this[TemplateInterface::class] = function ($c) {
             $templates = new PHPTemplates(
-                $c->get("template-dir"),
-                ["csrf" => new CsrfRenderer($c->get(CsrfInterface::class))]
+                $c->get("config")["template-dir"],
+                [
+                    "csrf" => new CsrfRenderer($c->get(CsrfInterface::class)),
+                    "honeypot" => $c->get(HoneypotInterface::class)
+                ]
             );
             return $templates;
         };
@@ -141,11 +175,11 @@ class OtoiContainer extends Container
         };
 
         $this["form-repo-driver"] = function ($c) {
-            return new PHPFileDriver($c->get("config-dir") . "/forms");
+            return new PHPFileDriver($c->get("config")["config-dir"] . "/forms");
         };
 
         $this["mail-repo-driver"] = function ($c) {
-            return new PHPFileDriver($c->get("config-dir") . "/mail");
+            return new PHPFileDriver($c->get("config")["config-dir"] . "/mail");
         };
 
         $this["mail-config-parser"] = function ($c) {
@@ -162,25 +196,31 @@ class OtoiContainer extends Container
         // -- Repositories
 
         $this["errorHandler"] = function ($c) {
-            return new ErrorHandler($c->get(LoggerInterface::class), 1);
+            $debug = $c->get("config")["debug"] ? 1 : 0;
+            return new ErrorHandler($c->get(LoggerInterface::class), $debug);
         };
+
+        // Logging --
 
         $this[LoggerInterface::class] = function ($c) {
-            return new Logger("file", [
-                new StreamHandler($c->get("log-dir") . "/all.log")
-            ]);
+            $logger = new Logger("file");
+            $logger->pushHandler(new StreamHandler($c->get("config")["log-dir"] . "/info.log"));
+            $logger->pushHandler(new StreamHandler($c->get("config")["log-dir"] . "/errors.log", Logger::ERROR, false));
+            return $logger;
         };
 
-        $this[CsrfMiddleware::class] = function ($c) {
-            return new CsrfMiddleware($c->get(CsrfInterface::class));
-        };
+        // -- Logging
 
         $this[CsrfInterface::class] = function ($c) {
             return new SessionCsrf("otoi", $c->get(SessionInterface::class));
         };
 
-        $this[SessionInterface::class] = function($c) {
+        $this[SessionInterface::class] = function ($c) {
             return new BasicSession();
+        };
+
+        $this[HoneypotInterface::class] = function ($c) {
+            return new Honeypot("fax_confirm_");
         };
     }
 }

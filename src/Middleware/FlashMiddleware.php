@@ -19,9 +19,7 @@ class FlashMiddleware
     public function process(ServerRequestInterface $request, ResponseInterface $response, $next)
     {
         $this->session->ageFlash();
-        $response = $next($request, $response);
-
-        return $response;
+        return $next($request, $response);
     }
 
 }

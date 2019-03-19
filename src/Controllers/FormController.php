@@ -2,7 +2,6 @@
 
 namespace Otoi\Controllers;
 
-use Otoi\Config;
 use Otoi\Repositories\FormRepository;
 use Otoi\Sessions\SessionInterface;
 use Otoi\Templates\TemplateInterface;
@@ -14,19 +13,19 @@ class FormController
 {
     private $templates;
     private $session;
-    private $config;
+    private $baseUrl;
     private $formRepo;
 
     public function __construct(
         TemplateInterface $templates,
         SessionInterface $session,
         FormRepository $formRepository,
-        Config $config
+        $baseUrl
     ) {
         $this->templates = $templates;
         $this->session = $session;
         $this->formRepo = $formRepository;
-        $this->config = $config;
+        $this->baseUrl = $baseUrl;
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -38,7 +37,7 @@ class FormController
             throw new NotFoundException($request, $response);
         }
 
-        $body = $this->templates->render($form->getTemplates()->getIndex(), [
+        $body = $this->templates->render($form->getTemplateIndex(), [
             "action" => $this->buildActionUrl($formName, "confirm"),
             "data" => $request->getParsedBody(),
             "errors" => $this->session->getFlash("errors", [])
@@ -57,7 +56,7 @@ class FormController
             throw new NotFoundException($request, $response);
         }
 
-        $body = $this->templates->render($form->getTemplates()->getConfirm(), [
+        $body = $this->templates->render($form->getTemplateConfirm(), [
             "action" => $this->buildActionUrl($formName, "mail"),
             "data" => $request->getParsedBody()
         ]);
@@ -66,24 +65,9 @@ class FormController
         return $response;
     }
 
-    public function thanks(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $formName = isset($args["form"]) ? $args["form"] : "default";
-        $form = $this->formRepo->load($formName);
-
-        if (is_null($form)) {
-            throw new NotFoundException($request, $response);
-        }
-
-        $response
-            ->getBody()
-            ->write($this->templates->render($form->getTemplates()->getFinal()));
-        return $response;
-    }
-
     private function buildActionUrl($formName, $action = "")
     {
         $action = $formName !== "default" ? "/$formName/$action" : "/$action";
-        return $this->config["base-url"] . $action;
+        return ltrim($this->baseUrl, "/") . $action;
     }
 }

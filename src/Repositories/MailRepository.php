@@ -18,7 +18,7 @@ class MailRepository implements RepositoryInterface
 
     /**
      * @param $name
-     * @return \Otoi\Entities\Mail[]
+     * @return \Otoi\Mail\Mail[]
      */
     public function load($name)
     {
