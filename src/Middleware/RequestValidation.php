@@ -33,7 +33,8 @@ class RequestValidation
             throw new NotFoundException($request, $response);
         }
 
-        $result = $this->validator->validate($form->getRules(), $request->getParsedBody());
+        $data = array_merge($request->getParsedBody(), $request->getUploadedFiles());
+        $result = $this->validator->validate($form->getRules(), $data);
         if ($result->failed()) {
             $this->session->flash("errors", $result->errors());
             return $this->errorResponse($request, $response, $result->errors());
@@ -72,6 +73,7 @@ class RequestValidation
             $splitOnQuery = explode("?", $params["HTTP_REFERER"]);
             return $response
                 ->withStatus(303)
+                ->withHeader("X-Otoi-Reason", "invalid")
                 ->withHeader("Location", $splitOnQuery[0]);
         }
 

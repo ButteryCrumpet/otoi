@@ -12,8 +12,10 @@ use Otoi\Csrf\SessionCsrf;
 use Otoi\Honeypot\Honeypot;
 use Otoi\Honeypot\HoneypotInterface;
 use Otoi\Mail\DriverInterface as MailDriver;
+use Otoi\Mail\DriverInterface;
 use Otoi\Mail\Drivers\PHPMailerDriver;
 use Otoi\Middleware\CsrfMiddleware;
+use Otoi\Middleware\FileSessionMiddleware;
 use Otoi\Middleware\FlashMiddleware;
 use Otoi\Middleware\HoneypotMiddleware;
 use Otoi\Middleware\RequestLogMiddleware;
@@ -78,11 +80,15 @@ class OtoiContainer extends Container
         // Middleware --
 
         $this[SessionMiddleware::class] = function ($c) {
-            return new SessionMiddleware($this->get(SessionInterface::class));
+            return new SessionMiddleware($c->get(SessionInterface::class));
+        };
+
+        $this[FileSessionMiddleware::class] = function ($c) {
+            return new FileSessionMiddleware(__DIR__ . "/storage", $c->get(SessionInterface::class));
         };
 
         $this[FlashMiddleware::class] = function ($c) {
-            return new FlashMiddleware($this->get(SessionInterface::class));
+            return new FlashMiddleware($c->get(SessionInterface::class));
         };
 
         $this[RequestValidation::class] = function ($c) {
@@ -184,6 +190,7 @@ class OtoiContainer extends Container
 
         $this["mail-config-parser"] = function ($c) {
             return new ArrayMailParser(
+                $c->get(DriverInterface::class),
                 $c->get(TemplateInterface::class),
                 new ConditionCheck() // Do with validation?
             );

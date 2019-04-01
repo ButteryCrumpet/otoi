@@ -5,6 +5,7 @@ namespace Otoi;
 use Otoi\Controllers\FormController;
 use Otoi\Controllers\MailController;
 use Otoi\Middleware\CsrfMiddleware;
+use Otoi\Middleware\FileSessionMiddleware;
 use Otoi\Middleware\HoneypotMiddleware;
 use Otoi\Middleware\RequestLogMiddleware;
 use Otoi\Middleware\RequestValidation;
@@ -21,7 +22,9 @@ class Otoi
     {
         $this->container = new OtoiContainer();
         $this->container["config"] = array_merge($this->container["config"], $config);
-        //$this->container->get("settings")["displayErrorDetails"] = true;
+        if ($this->container["config"]["debug"]) {
+            $this->container->get("settings")["displayErrorDetails"] = true;
+        }
         $this->app = new App($this->container);
     }
 
@@ -59,6 +62,7 @@ class Otoi
 
         })
             ->add(RequestValidation::class . ":process")
+            ->add(FileSessionMiddleware::class . ":process")
             ->add(CsrfMiddleware::class . ":process")
             ->add(FlashMiddleware::class . ":process")
             ->add(SessionMiddleware::class . ":process")

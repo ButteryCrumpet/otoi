@@ -56,9 +56,15 @@ class FormController
             throw new NotFoundException($request, $response);
         }
 
+        $data = $request->getParsedBody();
+
+        foreach ($request->getUploadedFiles() as $name => $file) {
+            $data[$name] = $file->getClientFilename();
+        }
+
         $body = $this->templates->render($form->getTemplateConfirm(), [
             "action" => $this->buildActionUrl($formName, "mail"),
-            "data" => $request->getParsedBody()
+            "data" => $data
         ]);
 
         $response->getBody()->write($body);

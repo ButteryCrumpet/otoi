@@ -13,9 +13,9 @@ interface DriverInterface
      * @param EmailAddress $from
      * @param string $subject
      * @param string $body
-     * @param UploadedFileInterface[] $files
      * @param EmailAddress[] $cc
      * @param EmailAddress[] $bcc
+     * @param UploadedFileInterface[] $files
      * @return bool
      * @throws MailException
      */

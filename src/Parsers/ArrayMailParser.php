@@ -2,6 +2,7 @@
 
 namespace Otoi\Parsers;
 
+use Otoi\Mail\DriverInterface;
 use Otoi\Mail\EmailAddress;
 use Otoi\Mail\Mail;
 use Otoi\Mail\PlaceholderEmailAddress;
@@ -13,11 +14,13 @@ class ArrayMailParser implements ParserInterface
 
     private $templator;
     private $condChecker;
+    private $driver;
 
-    public function __construct(TemplateInterface $templator, $condChecker)
+    public function __construct(DriverInterface $driver, TemplateInterface $templator, $condChecker)
     {
         $this->templator = $templator;
         $this->condChecker = $condChecker;
+        $this->driver = $driver;
     }
 
     public function parse($input)
@@ -27,10 +30,18 @@ class ArrayMailParser implements ParserInterface
         $to = is_array($input["to"][0]) ? $input["to"] : [$input["to"]];
         $to = array_map([$this, "parseEmail"], $to);
 
+        $files = isset($input['files'])
+            ? is_array($input["files"])
+                ? $input['files']
+                : [$input['files']]
+            : [];
+
         $mail = new Mail(
+            $this->driver,
             $to,
             $this->parseEmail($input["from"]),
-            $input["subject"]
+            $input["subject"],
+            $files
         );
 
         if (isset($input["cc"])) {
@@ -75,11 +86,6 @@ class ArrayMailParser implements ParserInterface
         $placeholders = bindec(
             (int)$this->isPlaceholder($in[0]) . (int)$this->isPlaceholder($in[1])
         );
-
-        var_dump($in[0], $this->isPlaceholder($in[0]));
-        var_dump($in[1], $this->isPlaceholder($in[1]));
-        var_dump((int)$this->isPlaceholder($in[0]) . (int)$this->isPlaceholder($in[1]));
-        var_dump(bindec($placeholders));
 
         if ($placeholders > 0) {
             return new PlaceholderEmailAddress(

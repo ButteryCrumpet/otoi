@@ -40,11 +40,9 @@ class MailController
         $form = $this->formRepo->load($formName);
         $mails = $this->mailRepo->load($formName);
 
-        $data = (array)$request->getParsedBody();
-
         foreach ($mails as $mail) {
             try {
-                $mail->send($data, $this->mailer);
+                $mail->send($request->getParsedBody(), $request->getUploadedFiles());
             } catch (MailException $e) {
                 $this->logError($e);
             }

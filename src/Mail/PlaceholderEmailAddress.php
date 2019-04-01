@@ -24,8 +24,6 @@ class PlaceholderEmailAddress extends EmailAddress implements PlaceholderInterfa
      */
     public function resolve($data)
     {
-        var_dump($this->mode);
-        var_dump($data);
         if ($this->mode === static::PLCHLDR_ADDR || $this->mode === static::PLCHLDR_BOTH) {
             $this->address = isset($data[$this->address]) ? $data[$this->address] : "";
         }
