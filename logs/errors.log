@@ -1,0 +1,5 @@
+[2019-04-02 05:09:30] file.CRITICAL: Callable Http\Middleware\RequestLogMiddleware does not exist {"code":0,"file":"/var/www/html/app/vendor/slim/slim/Slim/CallableResolver.php","line":90,"type":"RuntimeException"} []
+[2019-04-02 05:11:27] file.CRITICAL: Callable Http\Middleware\RequestLogMiddleware does not exist {"code":0,"file":"/var/www/html/app/vendor/slim/slim/Slim/CallableResolver.php","line":90,"type":"RuntimeException"} []
+[2019-04-02 05:14:00] file.CRITICAL: s not a directory {"code":0,"file":"/var/www/html/app/src/Http/Middleware/FileSessionMiddleware.php","line":23,"type":"InvalidArgumentException"} []
+[2019-04-02 06:03:39] file.CRITICAL:  is not a valid file {"code":0,"file":"/var/www/html/app/src/Drivers/PHPFileDriver.php","line":20,"type":"InvalidArgumentException"} []
+[2019-04-02 06:03:41] file.CRITICAL:  is not a valid file {"code":0,"file":"/var/www/html/app/src/Drivers/PHPFileDriver.php","line":20,"type":"InvalidArgumentException"} []
