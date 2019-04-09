@@ -1,8 +1,6 @@
 Otoi - Simple Contact Form
 ==========================
 
-# Description
-
 **Otoi**とはPHP詳しくない方でも使いやすい、シンプルな、お問い合わせフォームのシステムです
 
 **Otoi** is a simple contact form app, designed to be easy to set
@@ -14,14 +12,14 @@ English documentation can be found below.
 
 PHP >= 5.6 \
 
-# 使用法
+## 使用法
 
 Otoiを使用する最も簡単な方法はOtoiのフォルダーを実行したい場所におくことです。
 Otoiの別のディレクトリで実行したい場合、自分の作ったindex.phpのファイルにbootstrap.phpをインコルードもできます。 \
 より高度なユーザだと、OtoiがComposerで実装されたものなのでautoload.phpをインクルードすると自由に
 `Otoi\Otoi`のインスタンスを作成で始め、または`Otoi\Otoi::start()`の静的のメソッドを使用ください。
 
-## 例
+### 例
 
 ```php
 <?php
@@ -39,7 +37,7 @@ Otoi\Otoi::start();
 _セキュリティーに関しては、通常に設定ファイルとテンプレートをドキュメントルートの外側におくか、.htaccessの「Deny
 from all」を含めることがおすすめです_
 
-## 書き換え
+### 書き換え
 
 OtoiはURL書き換えを使用しているために、下記のような.htaccessファイルが必要です。 
 
@@ -55,11 +53,11 @@ RewriteRule . index.php [L]
 ---
 
 
-# 設定
+## 設定
 
 **Otoi** attempts to keep configuration simple and easy.
 
-## 基本
+### 基本
 
 重要な設定は.envファイルに設定されています。 \
 その.envファイルは順序でディレクトリ内で検索されます。
@@ -95,7 +93,7 @@ configディレクトリの中には2つのファイルがあります。
 - mail.php
 
 
-## フォーム
+### フォーム
 
 forms.phpファイルの中には、それぞれの設定を書き込みます。ファイルは「`{form-name} => {configuration}`」の
 連想配列を返さなければなりません。\
@@ -131,7 +129,7 @@ return [
 
 
 
-### 設定構造
+#### 設定構造
 
 フォーム設定のスキーマは簡単です。 \
 キーは内部的にフォームを識別するためと、URLのスラグのために使用されます。
@@ -158,7 +156,7 @@ return [
 フォームの完成時に送信されるEメールの配列。これらはmail.phpに設定されるメール設定の名前です
 
 
-#### 例
+##### 例
 
 ```php
 <?php
@@ -178,7 +176,7 @@ return [
 
 ```
 
-## メール
+### メール
 
 mail.phpというファイル内には、各フォームの設定を書き込みます。
 ファイルは `{mail-name} => {configuration}`の連想配列を返さなければなりません。
@@ -193,7 +191,7 @@ return [
 
 ```
 
-### 設定構造
+#### 設定構造
 
 メール設定は少なくとも `" to "`、 `" from "`、 `" subject "`キーが**必須**です。
 `"cc"`, `"bcc"`, `"files"`, `"template"`は任意です。
@@ -209,7 +207,7 @@ return [
 
 `"tempate"`はテンプレートディレクトリを基準とした、電子メールの本文を作成するために使われるテンプレートのパスです。
 
-#### 例
+##### 例
 
 ```php
 <?php
@@ -236,7 +234,7 @@ return [
 このメール設定を各フォーム設定に名前で追加します。
 
 
-## 検証
+### 検証
 
 検証設定は文字列の形式です。 \
 ルールはパイプ `|`で区切ります。ルールが引数を取る場合、引数はコロン `：`で区切られ、各引数はカンマ `、`で区切られます。
@@ -260,9 +258,9 @@ e.g:
 ---
 
 
-# <a id="english"></a> English
+# English
 
-# Usage
+## Usage
 
 The simplest way of using Otoi is to just drop the folder into the
 location you want it to run at. You can also include bootstrap file
@@ -271,7 +269,7 @@ For more advanced users, Otoi is build with composer so it can also
 be started by including its autoload and either creating an instance
 of `Otoi\Otoi()` or using the `Otoi\Otoi::start()` static method.
 
-## Example
+### Example
 
 ```php
 <?php
@@ -289,7 +287,7 @@ Otoi\Otoi::start();
 _With regards to security it is usually better to keep config files and_ 
 _templates outside of the document root or include a "Deny from all" .htaccess_
 
-## Rewrites
+### Rewrites
 
 Otoi uses URL routing so the following, or similar, .htaccess file is necessary. 
 
@@ -305,7 +303,7 @@ RewriteRule . index.php [L]
 ---
 
 
-# Configuration
+## Configuration
 
 **Otoi** uses naming conventions to make configuration simple and easy. \
 Inside your config directory there should be two files: 
@@ -313,7 +311,7 @@ Inside your config directory there should be two files:
 - forms.php
 - mail.php
 
-## App
+### App
 
 The apps key configuration is set in a .env file. \
 The file is searched for in directories in the following order:
@@ -343,7 +341,7 @@ SMTP_PORT=25                 # Port for SMTP (May need setting if using SSL)
 
 ```
 
-## Forms
+### Forms
 
 Inside the forms file is where you will write the configuration for each 
 form. The file must return an associative array of `{form-name} => {configuration}`. 
@@ -379,7 +377,7 @@ The form generated from `default` key name config will then be found at `/contac
 
 
 
-### Configuration Schema
+#### Configuration Schema
 
 The schema for Form configuration is simple. \
 The key will be used to identify the form internally as well as for the
@@ -408,7 +406,7 @@ An array of emails to be sent upon completion of the form. These are names
 of mail configurations that will be set in `mail.php`
 
 
-#### Example Configuration
+##### Example Configuration
 
 ```php
 <?php
@@ -428,7 +426,7 @@ return [
 
 ```
 
-## Mail
+### Mail
 
 Inside the mail file is where you will write the configuration for each form.
 The file must return an associative array of `{mail-name} => {configuration}`.
@@ -444,7 +442,7 @@ return [
 
 ```
 
-### Configuration Schema
+#### Configuration Schema
 
 A mail configuration **MUST** have at least a `"to"`, `"from"` and `"subject"` key.
 `"cc"`, `"bcc"`, `"files"`, `"template"` are optional.
@@ -462,7 +460,7 @@ an attachment on the email.
 `"tempate"` is the path, relative to the template directory, of the template to be used to
 construct the body of the email.
 
-#### Example Configuration
+##### Example Configuration
 
 ```php
 <?php
@@ -489,7 +487,7 @@ return [
 Add these mail configurations by name to each form configuration.
 
 
-## Validation
+### Validation
 
 The validation configuration takes the form of a string. \
 Rules are separated by a pipe `|`, if a rule takes arguments they are delineated with a colon
