@@ -52,6 +52,7 @@ class OtoiContainer extends Container
             "config-dir" => realpath(getenv_or("CONFIG", "./config")),
             "template-dir" => realpath(getenv_or("TEMPLATES", "./templates")),
             "log-dir" => realpath(getenv_or("LOGS", "./logs")),
+            'honeypot' => strtolower(getenv_or("HONEYPOT", "true")) === "true",
         ];
 
 
@@ -131,7 +132,7 @@ class OtoiContainer extends Container
                 'blacklist' => Rules\Blacklist::class,
                 'whitelist' => Rules\Whitelist::class,
                 'email' => Rules\Email::class,
-                'file-ext' => Rules\FileExtension::class,
+                'ext' => Rules\FileExtension::class,
                 'file-sig' => Rules\FileSignature::class,
                 'jchars' => Validation\CustomRules\JapaneseCharacters::class,
                 'pdf' => Validation\CustomRules\PdfRule::class,
@@ -229,16 +230,24 @@ class OtoiContainer extends Container
 
         // -- Logging
 
-        $this[CsrfInterface::class] = function ($c) {
-            return new SessionCsrf("otoi", $c->get(SessionInterface::class));
-        };
+        // Session --
 
         $this[SessionInterface::class] = function ($c) {
             return new BasicSession();
         };
 
+        // -- Session
+
+        // Security --
+
+        $this[CsrfInterface::class] = function ($c) {
+            return new SessionCsrf("otoi", $c->get(SessionInterface::class));
+        };
+
         $this[HoneypotInterface::class] = function ($c) {
             return new Honeypot("fax_confirm_");
         };
+
+        // -- Security
     }
 }

@@ -50,6 +50,7 @@ class MailController
             }
         }
 
+        $this->logger->info(sprintf(_("Inquiry received for form %s"), $formName));
         $this->session->condemn();
 
         return $response

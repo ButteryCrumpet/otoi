@@ -19,7 +19,7 @@ interface HoneypotInterface
      * @param bool $echo
      * @return string
      */
-    public function html($echo = true);
+    public function __invoke($echo = true);
 
     /**
      * @return string

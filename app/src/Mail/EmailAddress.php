@@ -33,7 +33,7 @@ class EmailAddress
     /**
      * @return string
      */
-    public function getAddress()
+    public function addr()
     {
         return $this->address;
     }
@@ -41,7 +41,7 @@ class EmailAddress
     /**
      * @return string
      */
-    public function getName()
+    public function name()
     {
         return $this->name;
     }

@@ -72,7 +72,7 @@ class PHPMailerDriver implements DriverInterface
         }
 
         try {
-            $mail->setFrom($from->getAddress(), $from->getName());
+            $mail->setFrom($from->addr(), $from->name());
         } catch (Exception $e) {
             throw new ConfigurationException($e->getMessage());
         }
@@ -86,15 +86,15 @@ class PHPMailerDriver implements DriverInterface
         $mail->Body = $body;
 
         foreach ($to as $email) {
-            $mail->addAddress($email->getAddress(), $email->getName());
+            $mail->addAddress($email->addr(), $email->name());
         }
 
         foreach ($cc as $email) {
-            $mail->addCC($email->getAddress(), $email->getName());
+            $mail->addCC($email->addr(), $email->name());
         }
 
         foreach ($bcc as $email) {
-            $mail->addBCC($email->getAddress(), $email->getName());
+            $mail->addBCC($email->addr(), $email->name());
         }
 
         foreach ($files as $file) {

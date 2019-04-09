@@ -53,7 +53,7 @@ class Honeypot implements HoneypotInterface
      * @param bool $echo
      * @return string
      */
-    public function html($echo = true)
+    public function __invoke($echo = true)
     {
         $html = "<label style='display: none'>%s<input name='%s' aria-hidden='true' tabindex='-1'></label>";
         $html = sprintf($html, _("Leave blank"), $this->name);

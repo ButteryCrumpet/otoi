@@ -80,8 +80,11 @@ class Otoi
             ->add(CsrfMiddleware::class . ":process")
             ->add(FlashMiddleware::class . ":process")
             ->add(SessionMiddleware::class . ":process")
-            ->add(HoneypotMiddleware::class . ":process")
             ->add(RequestLogMiddleware::class . ":process");
+
+        if ($this->container["config"]["honeypot"]) {
+            $this->app->add(HoneypotMiddleware::class . ":process");
+        }
     }
 
     private function findConfigFile()
@@ -94,8 +97,12 @@ class Otoi
             return dirname(realpath("config/.env"));
         }
 
-        if (file_exists(__DIR__."/.env")) {
+        if (file_exists(__DIR__."/../.env")) {
             return dirname(realpath(__DIR__."/.env"));
+        }
+
+        if (file_exists(__DIR__."/.env")) {
+            return dirname(realpath(__DIR__."/../.env"));
         }
 
         return false;

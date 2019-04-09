@@ -23,6 +23,7 @@ class PHPTemplates implements TemplateInterface
         ob_start();
         extract($args);
         extract($this->helpers);
+        require __DIR__ . "Prelude.php";
 
         require $file;
 
