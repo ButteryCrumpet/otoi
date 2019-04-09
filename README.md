@@ -8,7 +8,7 @@ Otoi - Simple Contact Form
 **Otoi** is a simple contact form app, designed to be easy to set
 up and configure with minimal PHP knowledge
 
-[English Documentation](#english)
+English documentation can be found below.
 
 ### Requirements 必要条件
 
@@ -57,7 +57,7 @@ RewriteRule . index.php [L]
 
 # 設定
 
-**Otoi** attempts to keep configuration simple and easy. \
+**Otoi** attempts to keep configuration simple and easy.
 
 ## 基本
 
@@ -199,6 +199,7 @@ return [
 `"cc"`, `"bcc"`, `"files"`, `"template"`は任意です。
 
 `" to "`、 `" from "`、 `" cc "`、`" bcc "`はすべて以下のいずれかです。
+
 - メールアドレスの文字列          e.g `"test@mail.com"`
 - メールアドレスの文字列の配列     e.g `["test@mail.com", "mail@test.com"]`
 - メールアドレス・名のペア        e.g `["test@mail.com", "name1"]`
@@ -235,7 +236,7 @@ return [
 このメール設定を各フォーム設定に名前で追加します。
 
 
-## <a id="validation"></a> 検証
+## 検証
 
 検証設定は文字列の形式です。 \
 ルールはパイプ `|`で区切ります。ルールが引数を取る場合、引数はコロン `：`で区切られ、各引数はカンマ `、`で区切られます。
@@ -455,6 +456,11 @@ A mail configuration **MUST** have at least a `"to"`, `"from"` and `"subject"` k
 - Email address-name e.g `["test@mail.com", "name1"]`
 - Array of email address-name pairs e.g `[["test@mail.com", "name1"], ["mail@test.com", "name2"]]`
 
+`"files"` is an string or array of input names that relate to a file upload input to be sent as
+an attachment on the email.
+
+`"tempate"` is the path, relative to the template directory, of the template to be used to
+construct the body of the email.
 
 #### Example Configuration
 
