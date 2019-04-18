@@ -1,11 +1,6 @@
 */**/vendor/*
 .idea/*
 .git/*
-cov/*
-confirm.php
-index.php
-mail.php
-temp/*
-src/cache/*
 
 .DS_Store
+info.php
