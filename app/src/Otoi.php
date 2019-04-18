@@ -39,6 +39,16 @@ class Otoi
         if ($this->container["config"]["debug"]) {
             $this->container->get("settings")["displayErrorDetails"] = true;
         }
+
+        // Handle failures
+        $locale = $this->container["config"]["locale"];
+        putenv("LANG=$locale");
+        setlocale(LC_ALL, $locale . ".UTF-8");
+        $domain = "messages";
+        $location = realpath(__DIR__ . "/../languages");
+        bindtextdomain($domain, $location);
+        textdomain($domain);
+
         $this->app = new App($this->container);
     }
 

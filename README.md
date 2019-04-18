@@ -10,7 +10,7 @@ English documentation can be found below.
 
 ### Requirements 必要条件
 
-PHP >= 5.6 \
+PHP >= 5.6
 
 ## 使用法
 
@@ -63,7 +63,7 @@ RewriteRule . index.php [L]
 その.envファイルは順序でディレクトリ内で検索されます。
 
 1. Otoiが実行されていたディレクトリ
-2. Otoiが実行されていたdirectorのconfigという名前のディレクトリ
+2. Otoiが実行されていたディレクトリのconfigというディレクトリ
 3. Otoiの最上位フォルダ
 4. Otoiのsrcフォルダ
 
@@ -273,8 +273,8 @@ CSRFトークンとHoneytrapを簡単に含めるために、これらをレン�
 `$errors`配列はname =\> errors[]の配列です。入力が有効な場合、これは空の配列になります。 エラーの値は失敗した
 ルールの名前になります。\
 e.g `required|email`の検証の項目に`test＆test.com`を入力すると、エラー配列が`['email']`になります。\
-もっと有用なエラーメッセージが表示されます。
-
+もっと有用なエラーメッセージが表示されます。\
+`$ action`変数はフォームの次の段階のために生成されたURLを取得するために使うことができます。
 #### Example Template
 
 ```php
@@ -578,8 +578,8 @@ empty if valid. The value of the errors will be the name of the failed rule. \
 e.g input of `test&test.com` for a validation of `required|email` will have an errors array of
 `['email']` \
 More useful error messages are left to you to display. It is recommended to make an easy to use
-function that can be imported into the template to handle all the possible validation errors.   
-
+function that can be imported into the template to handle all the possible validation errors. \   
+The `$action` variable can be used to get the generated url for the next stage of the form.
 
 #### Example Template
 

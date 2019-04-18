@@ -1,0 +1,160 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-04-18 15:21+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: Parsers/ArrayMailParser.php:75
+msgid "Must be valid email or array [email, name]"
+msgstr ""
+
+#: Parsers/ArrayMailParser.php:105
+#, php-format
+msgid ""
+"Must be valid email or placeholder (input name prepended with @), %s was "
+"given"
+msgstr ""
+
+#: Parsers/ArrayMailParser.php:125
+#, php-format
+msgid "Mail config must be array. %s was given."
+msgstr ""
+
+#: Parsers/ArrayMailParser.php:130
+#, php-format
+msgid "Mail config must have key of %s"
+msgstr ""
+
+#: Parsers/ArrayMailParser.php:135
+msgid "Mail config To must not be empty"
+msgstr ""
+
+#: Parsers/ArrayMailParser.php:139
+msgid "Mail config must have either body or template"
+msgstr ""
+
+#: Drivers/PHPDirectoryDriver.php:16
+#, php-format
+msgid "%s is not a valid directory"
+msgstr ""
+
+#: Drivers/PHPDirectoryDriver.php:21 Drivers/PHPFileDriver.php:31
+#, php-format
+msgid "%s must be readable"
+msgstr ""
+
+#: Drivers/PHPFileDriver.php:26
+#, php-format
+msgid "%s is not a valid file"
+msgstr ""
+
+#: Drivers/PHPFileDriver.php:47 Drivers/PHPFileDriver.php:61
+#, php-format
+msgid "Config file must return an array. %s was returned"
+msgstr ""
+
+#: Security/Honeypot/Honeypot.php:38
+msgid "Honeypot triggered"
+msgstr ""
+
+#: Security/Honeypot/Honeypot.php:59
+msgid "Leave blank"
+msgstr ""
+
+#: Mail/EmailAddress.php:63
+#, php-format
+msgid "Invalid email address or name. Address: %s, Name: %s"
+msgstr ""
+
+#: Repositories/FormRepository.php:57
+msgid "Form config must be an array"
+msgstr ""
+
+#: Repositories/FormRepository.php:60
+msgid "Form config must contain validation attribute"
+msgstr ""
+
+#: Repositories/FormRepository.php:63
+msgid "Form validation config must be an array"
+msgstr ""
+
+#: Repositories/FormRepository.php:66
+msgid "Form config must contain templates attribute"
+msgstr ""
+
+#: Repositories/FormRepository.php:69
+msgid "Form template config must contain index attribute"
+msgstr ""
+
+#: Repositories/FormRepository.php:72
+msgid "Form template config must contain confirm attribute"
+msgstr ""
+
+#: Repositories/FormRepository.php:75
+msgid "Form config must mail confirm attribute"
+msgstr ""
+
+#: Repositories/FormRepository.php:78
+msgid "Form mail config must be an array"
+msgstr ""
+
+#: Repositories/FormRepository.php:81
+msgid "Form config must contain a final-location"
+msgstr ""
+
+#: Otoi.php:50
+#, php-format
+msgid "Configuration error occurred: "
+msgstr ""
+
+#: Http/Middleware/FileSessionMiddleware.php:24
+#, php-format
+msgid "%s is not a directory"
+msgstr ""
+
+#: Http/Middleware/FileSessionMiddleware.php:33
+#, php-format
+msgid "%s is not writable"
+msgstr ""
+
+#: Http/Middleware/FileSessionMiddleware.php:39
+#, php-format
+msgid "%s is not readable"
+msgstr ""
+
+#: Http/Controllers/MailController.php:53
+#, php-format
+msgid "Inquiry received for form %s"
+msgstr ""
+
+#: Http/Controllers/MailController.php:63
+#, php-format
+msgid "Mail send failed. %s - %s"
+msgstr ""
+
+#: Templates/PHPTemplates.php:47
+#, php-format
+msgid "No directory at %s"
+msgstr ""
+
+#: Templates/PHPTemplates.php:51
+#, php-format
+msgid "Directory %s must be readable"
+msgstr ""
+
+#: Form.php:134
+msgid "Key must be a valid string"
+msgstr ""

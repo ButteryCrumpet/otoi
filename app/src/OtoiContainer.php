@@ -53,6 +53,7 @@ class OtoiContainer extends Container
             "template-dir" => realpath(getenv_or("TEMPLATES", "./templates")),
             "log-dir" => realpath(getenv_or("LOGS", "./logs")),
             'honeypot' => strtolower(getenv_or("HONEYPOT", "true")) === "true",
+            'locale' => getenv_or("LOCALE", 'ja_JP')
         ];
 
 

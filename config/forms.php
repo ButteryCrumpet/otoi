@@ -5,10 +5,11 @@ return [
         "validation" => [
             "name" => "required",
             "email" => "email|required",
-            "file" => ""
+            "phone" => "required|phone",
+            "inquiry" => "required"
         ],
         "templates" => ["index" => "index", "confirm" => "confirm"],
         "final-location" => "/",
-        "mail" => ["admin", "customer"]
+        "mail" =>  []// e.g ["admin", "customer"]
     ]
 ];

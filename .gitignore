@@ -8,5 +8,4 @@ mail.php
 temp/*
 src/cache/*
 
-index.php
-.htaccess
+.DS_Store

@@ -121,10 +121,8 @@ class ArrayMailParser implements ParserInterface
     private function checkSchema($array)
     {
         if (!is_array($array)) {
-            throw new ParseException(sprintf(
-                "Mail config must be array. %s was given.",
-                gettype($array)
-            ));
+            throw new ParseException(
+                sprintf(_("Mail config must be array. %s was given."), gettype($array)));
         }
 
         foreach (static::$necessary as $key) {
