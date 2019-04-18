@@ -255,6 +255,54 @@ e.g:
 - regex 
 
 
+### テンプレート
+
+テンプレートは単にphpファイルです。そのように他のファイルを要求など、通常PHPで実行できます。ただし、
+ファイルはテンプレートクラスで実行されるため、あなたがOtoiを他のPHPファイル変数に埋め込んでいるなら、
+親ファイルは範囲外になります。\
+CSRFトークンとHoneytrapを簡単に含めるために、これらをレンダリングするためのヘルパーがあります。`$csrf()`と
+`$honeypot()`。 CSRFトークンは、クロスサイトリクエストフォージェリ攻撃に対抗するために常に必要です。
+ハニーポットは.envファイルで無効にできます。ハニーポットは、埋められた場合にフォームが拒否される原因となる隠し入力
+を含めることによって、ボットからのスパムの量を減らすためのシンプルで効果的な手法です。\
+ボットが自動的にそれを記入している間、人間はこの入力を見て記入しないでしょう。
+
+入力値はインデックステンプレートと確認テンプレートにある`$data`配列を通して利用可能です。 これらは項目の`name`
+でインデックスされています（検証設定で登録されている必要あります）。入力に対して値が送信されていない場合は、
+空の文字列になります (`""`)。 \
+エラーはインデックステンプレートのみにある`$errors`配列で利用できます。\
+`$errors`配列はname =\> errors[]の配列です。入力が有効な場合、これは空の配列になります。 エラーの値は失敗した
+ルールの名前になります。\
+e.g `required|email`の検証の項目に`test＆test.com`を入力すると、エラー配列が`['email']`になります。\
+もっと有用なエラーメッセージが表示されます。
+
+#### Example Template
+
+```php
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+</head>
+    <div>
+        <ul>
+        <?php foreach($errors as $name => $errs) ?>
+            <?php foreach ($errs as $err) ?>
+            <li><?= $err ?></li>
+            <?php endforeach ?>
+        <?php endforeach ?>
+        </ul>
+    </div>
+    <form enctype="multipart/form-data" action="<?= $action ?>" method="post">
+        <?php $csrf() ?>
+        <label>Name: <input type="text" name="name" value="<?= $data["name"] ?>"></label><br>
+        <label>Email: <input type="text" name="email" id="<?= $data["email"] ?>"></label><br>
+        <label>File: <input type="file" name="file"></label><br>
+        <input type="submit" value="Submit">
+        <?php $honeypot() ?>
+    </form>
+</html>
+```
+
 ---
 
 
@@ -344,7 +392,7 @@ SMTP_PORT=25                 # Port for SMTP (May need setting if using SSL)
 ### Forms
 
 Inside the forms file is where you will write the configuration for each 
-form. The file must return an associative array of `{form-name} => {configuration}`. 
+form. The file **MUST** return an associative array of `{form-name} => {configuration}`. 
 It **SHOULD** include a "default" form that will be run at the root of the application.
 
 ```php
@@ -496,7 +544,7 @@ Rules are separated by a pipe `|`, if a rule takes arguments they are delineated
 e.g:
 - `email`
 - `required|email`
-- `blacklist:not,this,or,this|required`
+- `blacklist:not,this,or,that|required`
 
 Available rules include
 - required
@@ -508,6 +556,59 @@ Available rules include
 - pdf
 - regex 
 
+### Templates
+
+Templates are simply php files. As such you are free to require other files and do anything
+else you can usually in PHP. However, as the file is executed in the templating classes
+context, if you are for some reason embedding Otoi in another PHP file variables from the
+parent file will be out of scope. \
+To make including a CSRF token and a Honeytrap easier there are helpers to render these.
+`$csrf()` and `$honeypot()`. CSRF token is always necessary to combat cross site request
+forgery attacks. Honeypot can be disabled via the .env file. The honeypot is
+a simple and effective technique to reduce the amount of spam from bots by including a hidden
+input which if filled will cause the form to be rejected. Humans will not see and not fill
+in this input while bots will automatically fill it in.
+
+Input values are available through the `$data` array which is present in both the index
+template and the confirm template. These are indexed by the name keys in the validation
+configuration. If no value has been submitted for an input it will be an empty string (`""`). \
+Errors are available through the `$errors` array, present ONLY in the index template. \
+The errors array is an array of name =\> errors[]. Each input will have an an array of error,
+empty if valid. The value of the errors will be the name of the failed rule. \
+e.g input of `test&test.com` for a validation of `required|email` will have an errors array of
+`['email']` \
+More useful error messages are left to you to display. It is recommended to make an easy to use
+function that can be imported into the template to handle all the possible validation errors.   
+
+
+#### Example Template
+
+```php
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+</head>
+    <div>
+        <ul>
+        <?php foreach($errors as $name => $errs) ?>
+            <?php foreach ($errs as $err) ?>
+            <li><?= $err ?></li>
+            <?php endforeach ?>
+        <?php endforeach ?>
+        </ul>
+    </div>
+    <form enctype="multipart/form-data" action="<?= $action ?>" method="post">
+        <?php $csrf() ?>
+        <label>Name: <input type="text" name="name" value="<?= $data["name"] ?>"></label><br>
+        <label>Email: <input type="text" name="email" id="<?= $data["email"] ?>"></label><br>
+        <label>File: <input type="file" name="file"></label><br>
+        <input type="submit" value="Submit">
+        <?php $honeypot() ?>
+    </form>
+</html>
+
+```
 
 ---
 
